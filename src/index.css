@@ -229,15 +229,18 @@ input[type="text"]:focus {
 
 /* ----- Menu de la semaine ----- */
 .jour {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 0;
   border-top: 1px solid var(--trait);
 }
 
 .jour:first-of-type {
   border-top: 0;
+}
+
+.jour-ligne {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
 }
 
 .pastille {
@@ -257,16 +260,47 @@ input[type="text"]:focus {
 .jour-texte {
   flex: 1;
   min-width: 0;
+  margin: 0;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.jour-texte:focus-visible {
+  outline: 2px solid var(--vert);
+  outline-offset: 3px;
+  border-radius: 8px;
 }
 
 .jour-nom {
+  display: block;
   font-weight: 600;
 }
 
-.jour-prix {
+.jour-sous {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
   margin-top: 1px;
+}
+
+.jour-prix {
   font-size: 0.82rem;
   color: var(--discret);
+}
+
+.jour-voir {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--vert);
+}
+
+.jour-ingredients {
+  margin: 0 0 12px 60px;
 }
 
 .changer {

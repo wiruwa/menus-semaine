@@ -25,6 +25,7 @@ const TXT = {
   aucunSurprise: "Aucun plat ne convient à ces goûts. Essaie avec moins d'exclusions.",
   menu: "Menu de la semaine",
   prixPour: "Prix estimés pour {n}",
+  ingredients: "Ingrédients",
   changer: "↻ Changer",
   pasAssez: "Seulement {n} plat(s) conviennent à toute la famille. On en ajoute bientôt !",
   aucun: "Aucun plat ne convient à ces goûts. Essaie avec moins d'exclusions.",
@@ -420,6 +421,7 @@ export function App() {
   const [panneau, setPanneau] = useState(false); // le panneau de partage est-il ouvert ?
   const [etatCopie, setEtatCopie] = useState(null); // null, "ok" ou "echec"
   const [verifie, setVerifie] = useState(""); // ce qui a été tapé, une fois la frappe terminée
+  const [ouverts, setOuverts] = useState({}); // les plats dont on voit les ingrédients (par jour)
   const debutMenu = useRef(null);
   const debutSurprise = useRef(null);
   const debutPanneau = useRef(null);
@@ -503,6 +505,7 @@ export function App() {
     const compatibles = PLATS.filter((plat) => platEstOk(plat, interditsActuels));
     setMenu(composerMenu(compatibles));
     setCoches({});
+    setOuverts({});
     setNumero(numero + 1);
   }
 
@@ -538,6 +541,11 @@ export function App() {
         setSurprise({ plat: melanger(candidats)[0], enCours: true });
       }
     }, 110);
+  }
+
+  // Toucher un plat montre ou cache ses ingrédients
+  function basculer(i) {
+    setOuverts({ ...ouverts, [i]: !ouverts[i] });
   }
 
   function cocher(id) {
@@ -663,14 +671,29 @@ export function App() {
             {menu.length > 0 && menu.length < 7 && <p className="info">{TXT.pasAssez.replace("{n}", menu.length)}</p>}
             {menu.map((plat, i) => (
               <div className="jour" key={plat.id}>
-                <div className="pastille">{TXT.jours[i].slice(0, 3)}</div>
-                <div className="jour-texte">
-                  <div className="jour-nom">{plat.nom}</div>
-                  <div className="jour-prix">{"≈ " + prixTexte(prixDuPlat(plat, personnes))}</div>
+                <div className="jour-ligne">
+                  <div className="pastille">{TXT.jours[i].slice(0, 3)}</div>
+                  <button type="button" className="jour-texte" aria-expanded={ouverts[i] ? "true" : "false"} onClick={() => basculer(i)}>
+                    <span className="jour-nom">{plat.nom}</span>
+                    <span className="jour-sous">
+                      <span className="jour-prix">{"≈ " + prixTexte(prixDuPlat(plat, personnes))}</span>
+                      <span className="jour-voir">
+                        {TXT.ingredients}
+                        <span aria-hidden="true">{ouverts[i] ? " ▴" : " ▾"}</span>
+                      </span>
+                    </span>
+                  </button>
+                  <button type="button" className="changer" disabled={platsLibres.length === 0} onClick={() => changerPlat(i)}>
+                    {TXT.changer}
+                  </button>
                 </div>
-                <button type="button" className="changer" disabled={platsLibres.length === 0} onClick={() => changerPlat(i)}>
-                  {TXT.changer}
-                </button>
+                {ouverts[i] && (
+                  <ul className="ingredients jour-ingredients" aria-label={TXT.ingredients}>
+                    {plat.ingredients.map((id) => (
+                      <li key={id}>{INGREDIENTS[id].nom}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
             ))}
           </section>
