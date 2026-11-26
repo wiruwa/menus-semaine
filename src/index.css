@@ -239,6 +239,65 @@ input[type="text"]:focus {
   content: "✕ ";
 }
 
+/* ----- Cuisines préférées (dans la fiche de chaque personne) ----- */
+.cuisines {
+  margin: 0 0 10px;
+}
+
+.cuisines-bouton {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 8px 32px 8px 12px;
+  border: 1px solid var(--trait);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--texte);
+  text-align: left;
+}
+
+.cuisines-titre {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--discret);
+}
+
+.cuisines-resume {
+  display: block;
+  margin-top: 1px;
+  overflow: hidden;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cuisines-fleche {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  color: var(--vert);
+  transform: translateY(-50%);
+}
+
+.cuisines-choix {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.cuisines .puce input:checked + span::before {
+  content: "♥ ";
+}
+
+.cuisines-aide {
+  margin: 8px 2px 0;
+  font-size: 0.78rem;
+  color: var(--discret);
+}
+
 /* ----- Boutons ----- */
 .bouton {
   display: block;
@@ -261,11 +320,65 @@ input[type="text"]:focus {
   color: #2b1a05;
 }
 
-.bouton-surprise {
+.boutons-soir {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
   margin-top: 10px;
+}
+
+.boutons-soir .bouton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 88px;
+  padding: 10px 6px;
+  line-height: 1.2;
+}
+
+.bouton-emoji {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.bouton-titre {
+  font-size: 0.95rem;
+  text-wrap: balance;
+}
+
+.bouton-sous {
+  font-size: 0.75rem;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.bouton-surprise {
   background: #fff;
   color: #7a4a12;
   border: 2px solid var(--orange);
+}
+
+.bouton-fastfood {
+  background: #fff;
+  color: #8c2f1a;
+  border: 2px solid #e2573a;
+}
+
+/* très petits écrans : les deux titres restent bien dans leur bouton */
+@media (max-width: 374px) {
+  .boutons-soir {
+    gap: 8px;
+  }
+
+  .boutons-soir .bouton {
+    padding: 10px 4px;
+  }
+
+  .bouton-titre {
+    font-size: 0.85rem;
+  }
 }
 
 .bouton:active {
@@ -278,6 +391,7 @@ input[type="text"]:focus {
 }
 
 .bouton:focus-visible,
+.cuisines-bouton:focus-visible,
 .changer:focus-visible,
 .retirer:focus-visible,
 .lien-partage:focus-visible,
@@ -290,6 +404,21 @@ input[type="text"]:focus {
 .carte-surprise {
   background: #fff8ee;
   border: 1px solid #f6d9b0;
+}
+
+.carte-fastfood {
+  background: #fff4ee;
+  border-color: #f4c8b8;
+}
+
+.blague {
+  margin: 0 0 12px;
+  color: var(--discret);
+  font-style: italic;
+}
+
+.aide-fastfood {
+  margin: -6px 2px 14px;
 }
 
 .surprise-tete {
@@ -446,6 +575,38 @@ input[type="text"]:focus {
 
 .type-soupe {
   background: #ecdff3;
+}
+
+.type-fastfood {
+  background: #fbdcc8;
+}
+
+/* les petites étiquettes d'un plat : sa cuisine et les personnes à qui il fait plaisir */
+.etiquettes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  margin-top: 4px;
+}
+
+.etiquette {
+  padding: 1px 8px;
+  border: 1px solid var(--trait);
+  border-radius: 999px;
+  background: var(--creme);
+  color: var(--discret);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.etiquette-coeur {
+  border-color: #bfdccb;
+  background: var(--vert-clair);
+  color: var(--vert-fonce);
+}
+
+.carte-surprise .etiquettes {
+  margin: -4px 0 12px;
 }
 
 .jour-texte {
