@@ -1,62 +1,485 @@
-import { useState } from "react";
+:root {
+  color-scheme: light;
+  --fond: #fbf6ee;
+  --carte: #ffffff;
+  --texte: #25302a;
+  --discret: #66746c;
+  --vert: #2f7d5b;
+  --vert-fonce: #1f5d44;
+  --vert-clair: #e4f1ea;
+  --orange: #f2913f;
+  --creme: #faf4ea;
+  --trait: #ebe0cf;
+}
 
-const PLATS = [
-  { nom: "Pâtes à la bolognaise", ingredients: ["pâtes", "viande hachée", "sauce tomate"], tags: ["viande", "pates"] },
-  { nom: "Poulet rôti et pommes de terre", ingredients: ["poulet", "pommes de terre"], tags: ["viande"] },
-  { nom: "Gratin de courgettes", ingredients: ["courgettes", "crème", "fromage râpé"], tags: ["legumes"] },
-  { nom: "Riz sauté aux légumes", ingredients: ["riz", "carottes", "poivrons", "oeufs"], tags: ["legumes", "riz"] },
-  { nom: "Omelette et salade", ingredients: ["oeufs", "salade", "tomates"], tags: ["oeufs", "legumes"] },
-  { nom: "Saumon et haricots verts", ingredients: ["saumon", "haricots verts", "citron"], tags: ["poisson"] },
-  { nom: "Tacos maison", ingredients: ["galettes", "viande hachée", "salade", "fromage râpé"], tags: ["viande"] },
-  { nom: "Soupe de légumes et croûtons", ingredients: ["carottes", "poireaux", "pommes de terre", "pain"], tags: ["legumes"] },
-  { nom: "Pizza maison", ingredients: ["pâte à pizza", "sauce tomate", "mozzarella", "jambon"], tags: ["pizza", "viande"] },
-];
+* {
+  box-sizing: border-box;
+}
 
-export function App() {
-  const [membres, setMembres] = useState([{ prenom: "", detestes: "" }]);
-  const [menu, setMenu] = useState(null);
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--texte);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
 
-  function majMembre(i, champ, valeur) {
-    const copie = [...membres];
-    copie[i][champ] = valeur;
-    setMembres(copie);
-  }
+button {
+  font: inherit;
+  cursor: pointer;
+}
 
-  function genererMenu() {
-    const interdits = membres
-      .flatMap((m) => m.detestes.split(","))
-      .map((s) => s.trim().toLowerCase())
-      .filter(Boolean);
+/* ----- Bandeau du haut ----- */
+.entete {
+  background: linear-gradient(135deg, var(--vert) 0%, #3d9c72 100%);
+  color: #fff;
+  padding: 30px 20px 64px;
+  border-radius: 0 0 30px 30px;
+}
 
-    const ok = PLATS.filter(
-      (p) => !p.ingredients.some((ing) => interdits.some((x) => ing.includes(x)))
-    );
-    const melange = [...ok].sort(() => Math.random() - 0.5).slice(0, 7);
-    const courses = [...new Set(melange.flatMap((p) => p.ingredients))];
-    setMenu({ plats: melange, courses });
-  }
+.entete-contenu {
+  max-width: 520px;
+  margin: 0 auto;
+}
 
-  return (
-    <div style={{ maxWidth: 480, margin: "0 auto", padding: 16, fontFamily: "sans-serif" }}>
-      <h1>Menus de la semaine</h1>
-      <h2>Qui mange à la maison ?</h2>
-      {membres.map((m, i) => (
-        <div key={i} style={{ marginBottom: 12 }}>
-          <input placeholder="Prénom" value={m.prenom} onChange={(e) => majMembre(i, "prenom", e.target.value)} />
-          <input placeholder="Ce qu'il/elle déteste (séparé par des virgules)" value={m.detestes} onChange={(e) => majMembre(i, "detestes", e.target.value)} style={{ width: "100%" }} />
-        </div>
-      ))}
-      <button onClick={() => setMembres([...membres, { prenom: "", detestes: "" }])}>+ Ajouter une personne</button>
-      <button onClick={genererMenu} style={{ marginLeft: 8 }}>Générer mon menu</button>
+.entete h1 {
+  margin: 0 0 8px;
+  font-size: 1.7rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
 
-      {menu && (
-        <>
-          <h2>Menu de la semaine</h2>
-          <ol>{menu.plats.map((p) => <li key={p.nom}>{p.nom}</li>)}</ol>
-          <h2>Liste de courses</h2>
-          <ul>{menu.courses.map((c) => <li key={c}>{c}</li>)}</ul>
-        </>
-      )}
-    </div>
-  );
+.entete p {
+  margin: 0;
+  opacity: 0.92;
+}
+
+/* ----- Page et cartes ----- */
+.page {
+  max-width: 520px;
+  margin: -40px auto 0;
+  padding: 0 16px 56px;
+}
+
+.carte {
+  background: var(--carte);
+  border-radius: 20px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 16px rgba(70, 45, 10, 0.08);
+  scroll-margin-top: 12px;
+}
+
+.carte h2 {
+  margin: 0 0 14px;
+  font-size: 1.15rem;
+}
+
+.sous-titre {
+  margin: -8px 0 12px;
+  font-size: 0.85rem;
+  color: var(--discret);
+}
+
+/* ----- Formulaire ----- */
+.membre {
+  position: relative;
+  background: var(--creme);
+  border: 1px solid var(--trait);
+  border-radius: 14px;
+  padding: 14px 14px 4px;
+  margin-bottom: 12px;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--discret);
+}
+
+input[type="text"] {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 12px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--texte);
+  background: #fff;
+  border: 1px solid var(--trait);
+  border-radius: 10px;
+}
+
+input[type="text"]:focus {
+  outline: 2px solid var(--vert);
+  outline-offset: 1px;
+}
+
+.retirer {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 9px;
+  border: 0;
+  background: transparent;
+  color: var(--discret);
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.aide {
+  margin: 12px 2px 0;
+  font-size: 0.8rem;
+  color: var(--discret);
+}
+
+/* ----- Boutons ----- */
+.bouton {
+  display: block;
+  width: 100%;
+  min-height: 50px;
+  border: 0;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.bouton-secondaire {
+  background: var(--vert-clair);
+  color: var(--vert-fonce);
+  margin-bottom: 10px;
+}
+
+.bouton-principal {
+  background: var(--orange);
+  color: #2b1a05;
+}
+
+.bouton-surprise {
+  margin-top: 10px;
+  background: #fff;
+  color: #7a4a12;
+  border: 2px solid var(--orange);
+}
+
+.bouton:active {
+  transform: scale(0.99);
+}
+
+.bouton:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.bouton:focus-visible,
+.changer:focus-visible,
+.retirer:focus-visible,
+.lien-partage:focus-visible,
+.stepper button:focus-visible {
+  outline: 2px solid var(--vert);
+  outline-offset: 2px;
+}
+
+/* ----- Plat tiré au sort ----- */
+.carte-surprise {
+  background: #fff8ee;
+  border: 1px solid #f6d9b0;
+}
+
+.surprise-nom {
+  margin: 0 0 6px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  transition: opacity 0.1s;
+}
+
+.surprise-nom.tourne {
+  opacity: 0.45;
+  margin-bottom: 14px;
+}
+
+.surprise-prix {
+  margin: 0 0 12px;
+  color: var(--discret);
+}
+
+.ingredients {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.ingredients li {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--vert-clair);
+  color: var(--vert-fonce);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* ----- Menu de la semaine ----- */
+.jour {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-top: 1px solid var(--trait);
+}
+
+.jour:first-of-type {
+  border-top: 0;
+}
+
+.pastille {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--vert-clair);
+  color: var(--vert-fonce);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.jour-texte {
+  flex: 1;
+  min-width: 0;
+}
+
+.jour-nom {
+  font-weight: 600;
+}
+
+.jour-prix {
+  margin-top: 1px;
+  font-size: 0.82rem;
+  color: var(--discret);
+}
+
+.changer {
+  flex: none;
+  padding: 8px 10px;
+  border: 1px solid var(--trait);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--discret);
+  font-size: 0.85rem;
+}
+
+.changer:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ----- Liste de courses ----- */
+.personnes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--trait);
+  border-radius: 14px;
+  background: var(--creme);
+  font-weight: 600;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stepper button {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--trait);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--vert-fonce);
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.stepper button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.stepper-nombre {
+  min-width: 28px;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.rayon h3 {
+  margin: 18px 0 2px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--discret);
+}
+
+.course {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 11px 0;
+  border-top: 1px solid var(--trait);
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--texte);
+  cursor: pointer;
+}
+
+.course:first-of-type {
+  border-top: 0;
+}
+
+.course input {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: var(--vert);
+}
+
+.course-nom {
+  flex: 1;
+  min-width: 0;
+}
+
+.course-nom small {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--discret);
+}
+
+.course-prix {
+  flex: none;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.fait .course-nom,
+.fait .course-prix {
+  text-decoration: line-through;
+  color: var(--discret);
+}
+
+.total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--vert-clair);
+  color: var(--vert-fonce);
+  font-weight: 700;
+}
+
+.total-prix {
+  font-size: 1.35rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.total-detail {
+  margin: 8px 2px 0;
+  font-size: 0.9rem;
+  color: var(--texte);
+}
+
+.carte .aide + .bouton {
+  margin-top: 16px;
+}
+
+/* ----- Partage ----- */
+.partage-panneau {
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid var(--trait);
+  border-radius: 14px;
+  background: var(--creme);
+}
+
+.partage-panneau p {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.partage-panneau .info {
+  margin: 10px 0 0;
+}
+
+.partage-liens {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.lien-partage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 6px 8px;
+  border: 1px solid var(--trait);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--texte);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  font: inherit;
+  font-size: 16px;
+  color: var(--texte);
+  background: #fff;
+  border: 1px solid var(--trait);
+  border-radius: 10px;
+}
+
+/* ----- Messages ----- */
+.info {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff3e2;
+  color: #7a4a12;
+  font-size: 0.9rem;
+}
+
+.info-ok {
+  background: var(--vert-clair);
+  color: var(--vert-fonce);
 }
