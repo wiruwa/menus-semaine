@@ -13,8 +13,20 @@ const TXT = {
   prenomExemple: "ex. : Emma",
   detestes: "Ce qu'il/elle n'aime pas",
   detestesExemple: "ex. : poisson, champignons",
+  groupesTitre: "En un clic :",
+  groupes: {
+    legumes: "Légumes",
+    viande: "Viande",
+    poisson: "Poisson",
+    mer: "Fruits de mer",
+    laitages: "Produits laitiers",
+    oeufs: "Œufs",
+  },
   ajouter: "+ Ajouter une personne",
   retirer: "Retirer cette personne",
+  tempsTitre: "Temps de préparation maximum",
+  tempsLibre: "Peu importe",
+  tempsAide: "Préparation et cuisson comprises (temps approximatif).",
   inconnu: "Aucun de nos plats ne contient : {mots}. Vérifie l'orthographe.",
   allergie: "En cas d'allergie, vérifie toujours les étiquettes : cette appli ne remplace pas ce contrôle.",
   generer: "Générer mon menu",
@@ -22,13 +34,19 @@ const TXT = {
   surprise: "🎲 Surprends-moi (un seul repas)",
   ceSoir: "Ce soir, on mange…",
   unAutre: "🎲 Un autre plat",
+  valider: "✅ Valider ce plat",
+  valide: "✅ Plat validé ! Tu peux l'envoyer avec sa liste de courses.",
+  ceSoirTexte: "Ce soir",
+  partagerPlat: "📤 Partager ce plat",
   aucunSurprise: "Aucun plat ne convient à ces goûts. Essaie avec moins d'exclusions.",
   menu: "Menu de la semaine",
   prixPour: "Prix estimés pour {n}",
   ingredients: "Ingrédients",
   changer: "↻ Changer",
   pasAssez: "Seulement {n} plat(s) conviennent à toute la famille. On en ajoute bientôt !",
+  pasAssezTemps: "Seulement {n} plat(s) conviennent à toute la famille en {temps} maximum. Essaie un temps plus long ou moins d'exclusions.",
   aucun: "Aucun plat ne convient à ces goûts. Essaie avec moins d'exclusions.",
+  aucunTemps: "Aucun plat ne convient à ces goûts en {temps} maximum. Essaie un temps plus long ou moins d'exclusions.",
   courses: "Liste de courses",
   pour: "Pour",
   personne: "personne",
@@ -36,6 +54,18 @@ const TXT = {
   moins: "Une personne de moins",
   plus: "Une personne de plus",
   repas: "{n} repas",
+  min: "min",
+  heure: "h",
+  gramme: "g",
+  kilo: "kg",
+  centilitre: "cl",
+  litre: "L",
+  unites: {
+    piece: ["pièce", "pièces"],
+    boite: ["boîte", "boîtes"],
+    pot: ["pot", "pots"],
+    tranche: ["tranche", "tranches"],
+  },
   total: "Total estimé",
   parPersonne: "Soit environ {prix} par personne",
   prixIndicatif: "Prix indicatifs : ils varient selon ton magasin. On suppose que tu as déjà l'huile, le sel, le poivre, le beurre et les épices.",
@@ -58,6 +88,8 @@ const TXT = {
 /* ------------------------------------------------------------------
    2. LES INGRÉDIENTS
    prix = prix estimé en euros pour UN repas de 4 personnes.
+   qte et unite = la quantité à acheter pour UN repas de 4 personnes
+           (unite : "g", "cl", "piece", "boite", "pot" ou "tranche").
    aussi = autres mots qui doivent aussi exclure cet ingrédient
            (exemple : "porc" pour le jambon).
 ------------------------------------------------------------------- */
@@ -65,153 +97,169 @@ const RAYONS = ["legumes", "viande", "frais", "epicerie", "pain"]; // l'ordre da
 
 const INGREDIENTS = {
   // Fruits et légumes
-  carottes: { nom: "Carottes", prix: 0.9, rayon: "legumes", aussi: "legume" },
-  patates: { nom: "Pommes de terre", prix: 1.4, rayon: "legumes" },
-  courgettes: { nom: "Courgettes", prix: 2.0, rayon: "legumes", aussi: "legume" },
-  poireaux: { nom: "Poireaux", prix: 2.0, rayon: "legumes", aussi: "legume" },
-  haricots_verts: { nom: "Haricots verts", prix: 2.6, rayon: "legumes", aussi: "haricot legume" },
-  oignons: { nom: "Oignons", prix: 0.4, rayon: "legumes", aussi: "ognon" },
-  tomates: { nom: "Tomates", prix: 2.4, rayon: "legumes" },
-  salade: { nom: "Salade", prix: 1.3, rayon: "legumes" },
-  poivrons: { nom: "Poivrons", prix: 2.5, rayon: "legumes", aussi: "legume" },
-  champignons: { nom: "Champignons", prix: 2.0, rayon: "legumes" },
-  epinards: { nom: "Épinards", prix: 2.0, rayon: "legumes", aussi: "legume" },
-  brocoli: { nom: "Brocoli", prix: 1.8, rayon: "legumes", aussi: "legume" },
-  chou_fleur: { nom: "Chou-fleur", prix: 2.0, rayon: "legumes", aussi: "chou legume" },
-  aubergines: { nom: "Aubergines", prix: 2.4, rayon: "legumes", aussi: "legume" },
-  petits_pois: { nom: "Petits pois", prix: 1.6, rayon: "legumes", aussi: "legume" },
-  endives: { nom: "Endives", prix: 2.5, rayon: "legumes", aussi: "chicon legume" },
-  chou: { nom: "Chou blanc", prix: 1.6, rayon: "legumes", aussi: "legume" },
-  potiron: { nom: "Potiron", prix: 2.2, rayon: "legumes", aussi: "courge legume" },
-  citron: { nom: "Citron", prix: 0.5, rayon: "legumes" },
+  carottes: { nom: "Carottes", prix: 0.9, rayon: "legumes", qte: 400, unite: "g", aussi: "legume" },
+  patates: { nom: "Pommes de terre", prix: 1.4, rayon: "legumes", qte: 800, unite: "g" },
+  courgettes: { nom: "Courgettes", prix: 2.0, rayon: "legumes", qte: 600, unite: "g", aussi: "legume" },
+  poireaux: { nom: "Poireaux", prix: 2.0, rayon: "legumes", qte: 500, unite: "g", aussi: "legume" },
+  haricots_verts: { nom: "Haricots verts", prix: 2.6, rayon: "legumes", qte: 500, unite: "g", aussi: "haricot legume" },
+  oignons: { nom: "Oignons", prix: 0.4, rayon: "legumes", qte: 2, unite: "piece", aussi: "ognon" },
+  tomates: { nom: "Tomates", prix: 2.4, rayon: "legumes", qte: 400, unite: "g", aussi: "legume" },
+  salade: { nom: "Salade", prix: 1.3, rayon: "legumes", qte: 1, unite: "piece", aussi: "legume" },
+  poivrons: { nom: "Poivrons", prix: 2.5, rayon: "legumes", qte: 2, unite: "piece", aussi: "legume" },
+  champignons: { nom: "Champignons", prix: 2.0, rayon: "legumes", qte: 250, unite: "g", aussi: "legume" },
+  epinards: { nom: "Épinards", prix: 2.0, rayon: "legumes", qte: 300, unite: "g", aussi: "legume" },
+  brocoli: { nom: "Brocoli", prix: 1.8, rayon: "legumes", qte: 500, unite: "g", aussi: "legume" },
+  chou_fleur: { nom: "Chou-fleur", prix: 2.0, rayon: "legumes", qte: 1, unite: "piece", aussi: "chou legume" },
+  aubergines: { nom: "Aubergines", prix: 2.4, rayon: "legumes", qte: 1, unite: "piece", aussi: "legume" },
+  petits_pois: { nom: "Petits pois", prix: 1.6, rayon: "legumes", qte: 300, unite: "g", aussi: "legume" },
+  endives: { nom: "Endives", prix: 2.5, rayon: "legumes", qte: 6, unite: "piece", aussi: "chicon legume" },
+  chou: { nom: "Chou blanc", prix: 1.6, rayon: "legumes", qte: 1, unite: "piece", aussi: "legume" },
+  potiron: { nom: "Potiron", prix: 2.2, rayon: "legumes", qte: 800, unite: "g", aussi: "courge legume" },
+  citron: { nom: "Citron", prix: 0.5, rayon: "legumes", qte: 1, unite: "piece" },
 
   // Viandes et poissons
-  viande_hachee: { nom: "Viande hachée", prix: 5.9, rayon: "viande", aussi: "viande boeuf" },
-  poulet: { nom: "Poulet", prix: 7.0, rayon: "viande", aussi: "viande volaille" },
-  jambon: { nom: "Jambon", prix: 2.6, rayon: "viande", aussi: "viande porc" },
-  lardons: { nom: "Lardons", prix: 2.2, rayon: "viande", aussi: "viande porc" },
-  saucisses: { nom: "Saucisses", prix: 4.0, rayon: "viande", aussi: "viande porc" },
-  boeuf: { nom: "Bœuf à braiser", prix: 8.5, rayon: "viande", aussi: "viande" },
-  escalopes: { nom: "Escalopes de porc", prix: 5.5, rayon: "viande", aussi: "viande" },
-  saumon: { nom: "Saumon", prix: 12.5, rayon: "viande", aussi: "poisson" },
-  cabillaud: { nom: "Cabillaud", prix: 11.0, rayon: "viande", aussi: "poisson" },
-  crevettes: { nom: "Crevettes", prix: 9.0, rayon: "viande", aussi: "fruits de mer" },
-  moules: { nom: "Moules", prix: 9.5, rayon: "viande", aussi: "fruits de mer" },
+  viande_hachee: { nom: "Viande hachée", prix: 5.9, rayon: "viande", qte: 500, unite: "g", aussi: "viande boeuf" },
+  poulet: { nom: "Poulet", prix: 7.0, rayon: "viande", qte: 700, unite: "g", aussi: "viande volaille" },
+  jambon: { nom: "Jambon", prix: 2.6, rayon: "viande", qte: 200, unite: "g", aussi: "viande porc" },
+  lardons: { nom: "Lardons", prix: 2.2, rayon: "viande", qte: 200, unite: "g", aussi: "viande porc" },
+  saucisses: { nom: "Saucisses", prix: 4.0, rayon: "viande", qte: 500, unite: "g", aussi: "viande porc" },
+  boeuf: { nom: "Bœuf à braiser", prix: 8.5, rayon: "viande", qte: 800, unite: "g", aussi: "viande" },
+  escalopes: { nom: "Escalopes de porc", prix: 5.5, rayon: "viande", qte: 4, unite: "piece", aussi: "viande" },
+  saumon: { nom: "Saumon", prix: 12.5, rayon: "viande", qte: 500, unite: "g", aussi: "poisson" },
+  cabillaud: { nom: "Cabillaud", prix: 11.0, rayon: "viande", qte: 500, unite: "g", aussi: "poisson" },
+  crevettes: { nom: "Crevettes", prix: 9.0, rayon: "viande", qte: 400, unite: "g", aussi: "fruits de mer" },
+  moules: { nom: "Moules", prix: 9.5, rayon: "viande", qte: 2000, unite: "g", aussi: "fruits de mer" },
 
   // Produits frais
-  oeufs: { nom: "Œufs", prix: 2.2, rayon: "frais" },
-  creme: { nom: "Crème", prix: 1.2, rayon: "frais", aussi: "laitage lactose" },
-  lait: { nom: "Lait", prix: 0.6, rayon: "frais", aussi: "laitage lactose" },
-  fromage_rape: { nom: "Fromage râpé", prix: 2.2, rayon: "frais", aussi: "laitage lactose" },
-  mozzarella: { nom: "Mozzarella", prix: 1.8, rayon: "frais", aussi: "fromage laitage lactose" },
-  parmesan: { nom: "Parmesan", prix: 2.2, rayon: "frais", aussi: "fromage laitage lactose" },
-  pierogi: { nom: "Pierogi ruskis", prix: 4.0, rayon: "frais", aussi: "fromage laitage lactose patate" },
+  oeufs: { nom: "Œufs", prix: 2.2, rayon: "frais", qte: 6, unite: "piece" },
+  creme: { nom: "Crème", prix: 1.2, rayon: "frais", qte: 20, unite: "cl", aussi: "laitage lactose" },
+  lait: { nom: "Lait", prix: 0.6, rayon: "frais", qte: 25, unite: "cl", aussi: "laitage lactose" },
+  fromage_rape: { nom: "Fromage râpé", prix: 2.2, rayon: "frais", qte: 100, unite: "g", aussi: "laitage lactose" },
+  mozzarella: { nom: "Mozzarella", prix: 1.8, rayon: "frais", qte: 250, unite: "g", aussi: "fromage laitage lactose" },
+  parmesan: { nom: "Parmesan", prix: 2.2, rayon: "frais", qte: 50, unite: "g", aussi: "fromage laitage lactose" },
+  pierogi: { nom: "Pierogi ruskis", prix: 4.0, rayon: "frais", qte: 500, unite: "g", aussi: "fromage laitage lactose patate" },
 
   // Épicerie et surgelés
-  pates: { nom: "Pâtes", prix: 1.4, rayon: "epicerie", aussi: "pasta spaghetti" },
-  riz: { nom: "Riz", prix: 1.4, rayon: "epicerie" },
-  nouilles: { nom: "Nouilles", prix: 1.8, rayon: "epicerie" },
-  sauce_tomate: { nom: "Sauce tomate", prix: 1.6, rayon: "epicerie" },
-  lait_coco: { nom: "Lait de coco", prix: 1.6, rayon: "epicerie" },
-  lasagnes: { nom: "Feuilles de lasagnes", prix: 1.5, rayon: "epicerie" },
-  pate_pizza: { nom: "Pâte à pizza", prix: 1.8, rayon: "epicerie" },
-  pate_brisee: { nom: "Pâte brisée", prix: 1.6, rayon: "epicerie" },
-  pesto: { nom: "Pesto", prix: 2.3, rayon: "epicerie", aussi: "basilic" },
-  lentilles: { nom: "Lentilles", prix: 1.6, rayon: "epicerie", aussi: "legumineuse" },
-  pois_chiches: { nom: "Pois chiches", prix: 1.2, rayon: "epicerie", aussi: "legumineuse" },
-  haricots_rouges: { nom: "Haricots rouges", prix: 1.2, rayon: "epicerie", aussi: "haricot legumineuse" },
-  tortillas: { nom: "Tortillas", prix: 2.0, rayon: "epicerie", aussi: "wrap galette" },
-  frites: { nom: "Frites", prix: 2.5, rayon: "epicerie", aussi: "patate" },
-  poisson_pane: { nom: "Poisson pané", prix: 4.2, rayon: "epicerie" },
-  thon: { nom: "Thon en boîte", prix: 3.0, rayon: "epicerie", aussi: "poisson" },
-  choucroute: { nom: "Choucroute", prix: 2.0, rayon: "epicerie", aussi: "chou" },
+  pates: { nom: "Pâtes", prix: 1.4, rayon: "epicerie", qte: 400, unite: "g", aussi: "pasta spaghetti" },
+  riz: { nom: "Riz", prix: 1.4, rayon: "epicerie", qte: 300, unite: "g" },
+  nouilles: { nom: "Nouilles", prix: 1.8, rayon: "epicerie", qte: 300, unite: "g" },
+  sauce_tomate: { nom: "Sauce tomate", prix: 1.6, rayon: "epicerie", qte: 400, unite: "g" },
+  lait_coco: { nom: "Lait de coco", prix: 1.6, rayon: "epicerie", qte: 40, unite: "cl" },
+  lasagnes: { nom: "Feuilles de lasagnes", prix: 1.5, rayon: "epicerie", qte: 250, unite: "g" },
+  pate_pizza: { nom: "Pâte à pizza", prix: 1.8, rayon: "epicerie", qte: 2, unite: "piece" },
+  pate_brisee: { nom: "Pâte brisée", prix: 1.6, rayon: "epicerie", qte: 1, unite: "piece" },
+  pesto: { nom: "Pesto", prix: 2.3, rayon: "epicerie", qte: 1, unite: "pot", aussi: "basilic" },
+  lentilles: { nom: "Lentilles", prix: 1.6, rayon: "epicerie", qte: 300, unite: "g", aussi: "legumineuse" },
+  pois_chiches: { nom: "Pois chiches", prix: 1.2, rayon: "epicerie", qte: 1, unite: "boite", aussi: "legumineuse" },
+  haricots_rouges: { nom: "Haricots rouges", prix: 1.2, rayon: "epicerie", qte: 1, unite: "boite", aussi: "haricot legumineuse" },
+  tortillas: { nom: "Tortillas", prix: 2.0, rayon: "epicerie", qte: 8, unite: "piece", aussi: "wrap galette" },
+  frites: { nom: "Frites", prix: 2.5, rayon: "epicerie", qte: 800, unite: "g", aussi: "patate" },
+  poisson_pane: { nom: "Poisson pané", prix: 4.2, rayon: "epicerie", qte: 8, unite: "piece" },
+  thon: { nom: "Thon en boîte", prix: 3.0, rayon: "epicerie", qte: 2, unite: "boite", aussi: "poisson" },
+  choucroute: { nom: "Choucroute", prix: 2.0, rayon: "epicerie", qte: 800, unite: "g", aussi: "chou legume" },
 
   // Pain
-  pain: { nom: "Pain", prix: 2.0, rayon: "pain" },
-  pain_mie: { nom: "Pain de mie", prix: 1.8, rayon: "pain" },
-  pains_burger: { nom: "Pains à burger", prix: 2.2, rayon: "pain" },
+  pain: { nom: "Pain", prix: 2.0, rayon: "pain", qte: 1, unite: "piece" },
+  pain_mie: { nom: "Pain de mie", prix: 1.8, rayon: "pain", qte: 8, unite: "tranche" },
+  pains_burger: { nom: "Pains à burger", prix: 2.2, rayon: "pain", qte: 4, unite: "piece" },
 };
 
 /* ------------------------------------------------------------------
    3. LES PLATS
-   Pour en ajouter un : copie une ligne, change le nom et les ingrédients
-   (les ingrédients doivent exister dans la liste du dessus).
+   Pour en ajouter un : copie une ligne, puis change :
+   - id : un mot unique, sans espace ni accent
+   - nom : le nom du plat
+   - minutes : le temps total, préparation et cuisson comprises
+   - emoji : le petit dessin affiché à côté du plat
+   - ingredients : ils doivent exister dans la liste du dessus
    type = sert à varier le menu (pas plus de 2 plats du même type par semaine).
 ------------------------------------------------------------------- */
 const LES_PLATS = [
   // Pâtes
-  { id: "bolognaise", nom: "Pâtes à la bolognaise", type: "pates", ingredients: ["pates", "viande_hachee", "sauce_tomate", "oignons"] },
-  { id: "carbonara", nom: "Pâtes carbonara", type: "pates", ingredients: ["pates", "lardons", "creme", "parmesan"] },
-  { id: "pesto", nom: "Pâtes au pesto et aux tomates", type: "pates", ingredients: ["pates", "pesto", "parmesan", "tomates"] },
-  { id: "pates_thon", nom: "Pâtes au thon et à la tomate", type: "pates", ingredients: ["pates", "thon", "sauce_tomate", "oignons"] },
-  { id: "gratin_pates", nom: "Gratin de pâtes au jambon", type: "pates", ingredients: ["pates", "jambon", "creme", "fromage_rape"] },
-  { id: "pates_courgettes", nom: "Pâtes crémeuses aux courgettes", type: "pates", ingredients: ["pates", "courgettes", "creme", "parmesan"] },
-  { id: "wok_poulet", nom: "Wok de poulet et nouilles", type: "pates", ingredients: ["poulet", "nouilles", "carottes", "poivrons"] },
+  { id: "bolognaise", nom: "Pâtes à la bolognaise", type: "pates", minutes: 30, emoji: "🍝", ingredients: ["pates", "viande_hachee", "sauce_tomate", "oignons"] },
+  { id: "carbonara", nom: "Pâtes carbonara", type: "pates", minutes: 20, emoji: "🥓", ingredients: ["pates", "lardons", "creme", "parmesan"] },
+  { id: "pesto", nom: "Pâtes au pesto et aux tomates", type: "pates", minutes: 15, emoji: "🍅", ingredients: ["pates", "pesto", "parmesan", "tomates"] },
+  { id: "pates_thon", nom: "Pâtes au thon et à la tomate", type: "pates", minutes: 20, emoji: "🐟", ingredients: ["pates", "thon", "sauce_tomate", "oignons"] },
+  { id: "gratin_pates", nom: "Gratin de pâtes au jambon", type: "pates", minutes: 40, emoji: "🧀", ingredients: ["pates", "jambon", "creme", "fromage_rape"] },
+  { id: "pates_courgettes", nom: "Pâtes crémeuses aux courgettes", type: "pates", minutes: 25, emoji: "🥒", ingredients: ["pates", "courgettes", "creme", "parmesan"] },
+  { id: "wok_poulet", nom: "Wok de poulet et nouilles", type: "pates", minutes: 25, emoji: "🍜", ingredients: ["poulet", "nouilles", "carottes", "poivrons"] },
 
   // Riz
-  { id: "curry_poulet", nom: "Curry de poulet et riz", type: "riz", ingredients: ["poulet", "riz", "lait_coco", "carottes", "oignons"] },
-  { id: "riz_cantonais", nom: "Riz cantonais", type: "riz", ingredients: ["riz", "oeufs", "petits_pois", "jambon", "carottes"] },
-  { id: "risotto", nom: "Risotto aux champignons", type: "riz", ingredients: ["riz", "champignons", "oignons", "parmesan", "creme"] },
-  { id: "poulet_creme", nom: "Poulet à la crème, champignons et riz", type: "riz", ingredients: ["poulet", "champignons", "creme", "riz"] },
-  { id: "chili", nom: "Chili con carne et riz", type: "riz", ingredients: ["viande_hachee", "haricots_rouges", "sauce_tomate", "riz", "poivrons", "oignons"] },
-  { id: "ratatouille", nom: "Ratatouille et riz", type: "riz", ingredients: ["aubergines", "courgettes", "poivrons", "sauce_tomate", "riz"] },
-  { id: "riz_saute", nom: "Riz sauté aux légumes", type: "riz", ingredients: ["riz", "carottes", "poivrons", "oeufs"] },
+  { id: "curry_poulet", nom: "Curry de poulet et riz", type: "riz", minutes: 35, emoji: "🍛", ingredients: ["poulet", "riz", "lait_coco", "carottes", "oignons"] },
+  { id: "riz_cantonais", nom: "Riz cantonais", type: "riz", minutes: 25, emoji: "🍚", ingredients: ["riz", "oeufs", "petits_pois", "jambon", "carottes"] },
+  { id: "risotto", nom: "Risotto aux champignons", type: "riz", minutes: 40, emoji: "🍄", ingredients: ["riz", "champignons", "oignons", "parmesan", "creme"] },
+  { id: "poulet_creme", nom: "Poulet à la crème, champignons et riz", type: "riz", minutes: 35, emoji: "🥘", ingredients: ["poulet", "champignons", "creme", "riz"] },
+  { id: "chili", nom: "Chili con carne et riz", type: "riz", minutes: 45, emoji: "🍲", ingredients: ["viande_hachee", "haricots_rouges", "sauce_tomate", "riz", "poivrons", "oignons"] },
+  { id: "ratatouille", nom: "Ratatouille et riz", type: "riz", minutes: 50, emoji: "🍆", ingredients: ["aubergines", "courgettes", "poivrons", "sauce_tomate", "riz"] },
+  { id: "riz_saute", nom: "Riz sauté aux légumes", type: "riz", minutes: 25, emoji: "🥦", ingredients: ["riz", "carottes", "poivrons", "oeufs"] },
 
   // Pommes de terre
-  { id: "poulet_roti", nom: "Poulet rôti et pommes de terre", type: "patates", ingredients: ["poulet", "patates", "carottes"] },
-  { id: "hachis", nom: "Hachis parmentier", type: "patates", ingredients: ["viande_hachee", "patates", "lait", "fromage_rape", "oignons"] },
-  { id: "saucisses_puree", nom: "Saucisses, purée et haricots verts", type: "patates", ingredients: ["saucisses", "patates", "lait", "haricots_verts"] },
-  { id: "stoemp", nom: "Stoemp aux carottes et saucisses", type: "patates", ingredients: ["patates", "carottes", "poireaux", "saucisses"] },
-  { id: "gratin_dauphinois", nom: "Gratin dauphinois et jambon", type: "patates", ingredients: ["patates", "creme", "fromage_rape", "jambon"] },
-  { id: "endives_jambon", nom: "Endives au jambon gratinées", type: "patates", ingredients: ["endives", "jambon", "fromage_rape", "patates", "lait"] },
-  { id: "escalope", nom: "Escalope panée, pommes de terre et salade", type: "patates", ingredients: ["escalopes", "patates", "salade", "citron"] },
-  { id: "placki", nom: "Galettes de pommes de terre (placki)", type: "patates", ingredients: ["patates", "oignons", "oeufs", "creme"] },
-  { id: "pdt_lardons", nom: "Pommes de terre sautées, lardons et œufs", type: "patates", ingredients: ["patates", "lardons", "oeufs", "oignons"] },
-  { id: "boulets", nom: "Boulets sauce tomate et frites", type: "patates", ingredients: ["viande_hachee", "sauce_tomate", "oignons", "frites"] },
-  { id: "burger", nom: "Burgers maison et frites", type: "patates", ingredients: ["pains_burger", "viande_hachee", "fromage_rape", "salade", "tomates", "frites"] },
-  { id: "pierogi", nom: "Pierogi ruskis à la crème", type: "patates", ingredients: ["pierogi", "oignons", "creme"] },
+  { id: "poulet_roti", nom: "Poulet rôti et pommes de terre", type: "patates", minutes: 75, emoji: "🍗", ingredients: ["poulet", "patates", "carottes"] },
+  { id: "hachis", nom: "Hachis parmentier", type: "patates", minutes: 60, emoji: "🥔", ingredients: ["viande_hachee", "patates", "lait", "fromage_rape", "oignons"] },
+  { id: "saucisses_puree", nom: "Saucisses, purée et haricots verts", type: "patates", minutes: 35, emoji: "🌭", ingredients: ["saucisses", "patates", "lait", "haricots_verts"] },
+  { id: "stoemp", nom: "Stoemp aux carottes et saucisses", type: "patates", minutes: 45, emoji: "🥕", ingredients: ["patates", "carottes", "poireaux", "saucisses"] },
+  { id: "gratin_dauphinois", nom: "Gratin dauphinois et jambon", type: "patates", minutes: 75, emoji: "🧀", ingredients: ["patates", "creme", "fromage_rape", "jambon"] },
+  { id: "endives_jambon", nom: "Endives au jambon gratinées", type: "patates", minutes: 60, emoji: "🥓", ingredients: ["endives", "jambon", "fromage_rape", "patates", "lait"] },
+  { id: "escalope", nom: "Escalope panée, pommes de terre et salade", type: "patates", minutes: 35, emoji: "🥩", ingredients: ["escalopes", "patates", "salade", "citron"] },
+  { id: "placki", nom: "Galettes de pommes de terre (placki)", type: "patates", minutes: 35, emoji: "🥞", ingredients: ["patates", "oignons", "oeufs", "creme"] },
+  { id: "pdt_lardons", nom: "Pommes de terre sautées, lardons et œufs", type: "patates", minutes: 35, emoji: "🍳", ingredients: ["patates", "lardons", "oeufs", "oignons"] },
+  { id: "boulets", nom: "Boulets sauce tomate et frites", type: "patates", minutes: 45, emoji: "🍖", ingredients: ["viande_hachee", "sauce_tomate", "oignons", "frites"] },
+  { id: "burger", nom: "Burgers maison et frites", type: "patates", minutes: 35, emoji: "🍔", ingredients: ["pains_burger", "viande_hachee", "fromage_rape", "salade", "tomates", "frites"] },
+  { id: "pierogi", nom: "Pierogi ruskis à la crème", type: "patates", minutes: 20, emoji: "🥟", ingredients: ["pierogi", "oignons", "creme"] },
 
   // Viande
-  { id: "tacos", nom: "Tacos maison", type: "viande", ingredients: ["tortillas", "viande_hachee", "salade", "fromage_rape", "tomates"] },
-  { id: "wraps", nom: "Wraps au poulet et crudités", type: "viande", ingredients: ["tortillas", "poulet", "salade", "tomates"] },
-  { id: "golabki", nom: "Choux farcis (gołąbki) sauce tomate", type: "viande", ingredients: ["chou", "viande_hachee", "riz", "sauce_tomate"] },
-  { id: "waterzooi", nom: "Waterzooi de poulet", type: "viande", ingredients: ["poulet", "poireaux", "carottes", "patates", "creme"] },
-  { id: "carbonade", nom: "Carbonade flamande et frites", type: "viande", ingredients: ["boeuf", "oignons", "frites"] },
-  { id: "bigos", nom: "Bigos (choucroute aux saucisses)", type: "viande", ingredients: ["choucroute", "saucisses", "lardons", "oignons"] },
-  { id: "nuggets", nom: "Poulet pané et frites", type: "viande", ingredients: ["poulet", "frites", "salade"] },
+  { id: "tacos", nom: "Tacos maison", type: "viande", minutes: 25, emoji: "🌮", ingredients: ["tortillas", "viande_hachee", "salade", "fromage_rape", "tomates"] },
+  { id: "wraps", nom: "Wraps au poulet et crudités", type: "viande", minutes: 20, emoji: "🌯", ingredients: ["tortillas", "poulet", "salade", "tomates"] },
+  { id: "golabki", nom: "Choux farcis (gołąbki) sauce tomate", type: "viande", minutes: 90, emoji: "🍲", ingredients: ["chou", "viande_hachee", "riz", "sauce_tomate"] },
+  { id: "waterzooi", nom: "Waterzooi de poulet", type: "viande", minutes: 60, emoji: "🥣", ingredients: ["poulet", "poireaux", "carottes", "patates", "creme"] },
+  { id: "carbonade", nom: "Carbonade flamande et frites", type: "viande", minutes: 150, emoji: "🍖", ingredients: ["boeuf", "oignons", "frites"] },
+  { id: "bigos", nom: "Bigos (choucroute aux saucisses)", type: "viande", minutes: 60, emoji: "🥘", ingredients: ["choucroute", "saucisses", "lardons", "oignons"] },
+  { id: "nuggets", nom: "Poulet pané et frites", type: "viande", minutes: 35, emoji: "🍗", ingredients: ["poulet", "frites", "salade"] },
 
   // Poisson
-  { id: "saumon_haricots", nom: "Saumon, haricots verts et pommes de terre", type: "poisson", ingredients: ["saumon", "haricots_verts", "patates", "citron"] },
-  { id: "saumon_riz", nom: "Saumon, riz et brocoli", type: "poisson", ingredients: ["saumon", "riz", "brocoli", "citron"] },
-  { id: "cabillaud", nom: "Cabillaud au four et légumes", type: "poisson", ingredients: ["cabillaud", "courgettes", "carottes", "patates", "citron"] },
-  { id: "poisson_pane", nom: "Poisson pané et purée", type: "poisson", ingredients: ["poisson_pane", "patates", "lait", "petits_pois"] },
-  { id: "moules_frites", nom: "Moules-frites", type: "poisson", ingredients: ["moules", "frites", "oignons", "creme"] },
-  { id: "crevettes_riz", nom: "Crevettes sautées et riz", type: "poisson", ingredients: ["crevettes", "riz", "petits_pois", "oignons"] },
+  { id: "saumon_haricots", nom: "Saumon, haricots verts et pommes de terre", type: "poisson", minutes: 30, emoji: "🐟", ingredients: ["saumon", "haricots_verts", "patates", "citron"] },
+  { id: "saumon_riz", nom: "Saumon, riz et brocoli", type: "poisson", minutes: 30, emoji: "🍣", ingredients: ["saumon", "riz", "brocoli", "citron"] },
+  { id: "cabillaud", nom: "Cabillaud au four et légumes", type: "poisson", minutes: 45, emoji: "🐠", ingredients: ["cabillaud", "courgettes", "carottes", "patates", "citron"] },
+  { id: "poisson_pane", nom: "Poisson pané et purée", type: "poisson", minutes: 30, emoji: "🍤", ingredients: ["poisson_pane", "patates", "lait", "petits_pois"] },
+  { id: "moules_frites", nom: "Moules-frites", type: "poisson", minutes: 35, emoji: "🍟", ingredients: ["moules", "frites", "oignons", "creme"] },
+  { id: "crevettes_riz", nom: "Crevettes sautées et riz", type: "poisson", minutes: 25, emoji: "🦐", ingredients: ["crevettes", "riz", "petits_pois", "oignons"] },
 
   // Sans viande ni poisson
-  { id: "omelette", nom: "Omelette au fromage et salade", type: "veggie", ingredients: ["oeufs", "fromage_rape", "salade", "tomates"] },
-  { id: "shakshuka", nom: "Shakshuka (œufs à la tomate)", type: "veggie", ingredients: ["oeufs", "sauce_tomate", "poivrons", "oignons", "pain"] },
-  { id: "dahl", nom: "Dahl de lentilles et riz", type: "veggie", ingredients: ["lentilles", "lait_coco", "riz", "epinards", "oignons"] },
-  { id: "curry_pois_chiches", nom: "Curry de pois chiches et riz", type: "veggie", ingredients: ["pois_chiches", "lait_coco", "riz", "epinards", "sauce_tomate"] },
-  { id: "gratin_courgettes", nom: "Gratin de courgettes et pommes de terre", type: "veggie", ingredients: ["courgettes", "patates", "creme", "fromage_rape"] },
+  { id: "omelette", nom: "Omelette au fromage et salade", type: "veggie", minutes: 15, emoji: "🍳", ingredients: ["oeufs", "fromage_rape", "salade", "tomates"] },
+  { id: "shakshuka", nom: "Shakshuka (œufs à la tomate)", type: "veggie", minutes: 30, emoji: "🥘", ingredients: ["oeufs", "sauce_tomate", "poivrons", "oignons", "pain"] },
+  { id: "dahl", nom: "Dahl de lentilles et riz", type: "veggie", minutes: 35, emoji: "🍲", ingredients: ["lentilles", "lait_coco", "riz", "epinards", "oignons"] },
+  { id: "curry_pois_chiches", nom: "Curry de pois chiches et riz", type: "veggie", minutes: 30, emoji: "🍛", ingredients: ["pois_chiches", "lait_coco", "riz", "epinards", "sauce_tomate"] },
+  { id: "gratin_courgettes", nom: "Gratin de courgettes et pommes de terre", type: "veggie", minutes: 60, emoji: "🥒", ingredients: ["courgettes", "patates", "creme", "fromage_rape"] },
 
   // Au four
-  { id: "pizza_jambon", nom: "Pizza maison jambon-mozzarella", type: "four", ingredients: ["pate_pizza", "sauce_tomate", "mozzarella", "jambon"] },
-  { id: "pizza_legumes", nom: "Pizza aux légumes", type: "four", ingredients: ["pate_pizza", "sauce_tomate", "mozzarella", "poivrons", "champignons"] },
-  { id: "quiche_lorraine", nom: "Quiche lorraine et salade", type: "four", ingredients: ["pate_brisee", "lardons", "oeufs", "creme", "salade"] },
-  { id: "quiche_legumes", nom: "Quiche aux légumes", type: "four", ingredients: ["pate_brisee", "oeufs", "creme", "courgettes", "fromage_rape"] },
-  { id: "lasagnes", nom: "Lasagnes à la bolognaise", type: "four", ingredients: ["lasagnes", "viande_hachee", "sauce_tomate", "fromage_rape", "oignons"] },
-  { id: "croque", nom: "Croque-monsieur et salade", type: "four", ingredients: ["pain_mie", "jambon", "fromage_rape", "salade"] },
-  { id: "gratin_chou_fleur", nom: "Gratin de chou-fleur et jambon", type: "four", ingredients: ["chou_fleur", "jambon", "creme", "fromage_rape"] },
+  { id: "pizza_jambon", nom: "Pizza maison jambon-mozzarella", type: "four", minutes: 30, emoji: "🍕", ingredients: ["pate_pizza", "sauce_tomate", "mozzarella", "jambon"] },
+  { id: "pizza_legumes", nom: "Pizza aux légumes", type: "four", minutes: 35, emoji: "🍕", ingredients: ["pate_pizza", "sauce_tomate", "mozzarella", "poivrons", "champignons"] },
+  { id: "quiche_lorraine", nom: "Quiche lorraine et salade", type: "four", minutes: 55, emoji: "🥧", ingredients: ["pate_brisee", "lardons", "oeufs", "creme", "salade"] },
+  { id: "quiche_legumes", nom: "Quiche aux légumes", type: "four", minutes: 55, emoji: "🥧", ingredients: ["pate_brisee", "oeufs", "creme", "courgettes", "fromage_rape"] },
+  { id: "lasagnes", nom: "Lasagnes à la bolognaise", type: "four", minutes: 75, emoji: "🍝", ingredients: ["lasagnes", "viande_hachee", "sauce_tomate", "fromage_rape", "oignons"] },
+  { id: "croque", nom: "Croque-monsieur et salade", type: "four", minutes: 20, emoji: "🥪", ingredients: ["pain_mie", "jambon", "fromage_rape", "salade"] },
+  { id: "gratin_chou_fleur", nom: "Gratin de chou-fleur et jambon", type: "four", minutes: 55, emoji: "🧀", ingredients: ["chou_fleur", "jambon", "creme", "fromage_rape"] },
 
   // Soupes
-  { id: "soupe_legumes", nom: "Soupe de légumes et croûtons", type: "soupe", ingredients: ["carottes", "poireaux", "patates", "pain"] },
-  { id: "soupe_potiron", nom: "Soupe de potiron et tartines", type: "soupe", ingredients: ["potiron", "oignons", "creme", "pain"] },
-  { id: "soupe_tomates", nom: "Soupe de tomates au riz (pomidorowa)", type: "soupe", ingredients: ["sauce_tomate", "riz", "creme", "carottes"] },
-  { id: "soupe_poireaux", nom: "Soupe de poireaux et pommes de terre", type: "soupe", ingredients: ["poireaux", "patates", "creme", "pain"] },
+  { id: "soupe_legumes", nom: "Soupe de légumes et croûtons", type: "soupe", minutes: 40, emoji: "🥣", ingredients: ["carottes", "poireaux", "patates", "pain"] },
+  { id: "soupe_potiron", nom: "Soupe de potiron et tartines", type: "soupe", minutes: 40, emoji: "🎃", ingredients: ["potiron", "oignons", "creme", "pain"] },
+  { id: "soupe_tomates", nom: "Soupe de tomates au riz (pomidorowa)", type: "soupe", minutes: 30, emoji: "🍅", ingredients: ["sauce_tomate", "riz", "creme", "carottes"] },
+  { id: "soupe_poireaux", nom: "Soupe de poireaux et pommes de terre", type: "soupe", minutes: 40, emoji: "🍲", ingredients: ["poireaux", "patates", "creme", "pain"] },
 ];
 
 const MAX_PAR_TYPE = 2; // pas plus de 2 plats du même type dans la semaine
+
+const TEMPS_CHOIX = [0, 30, 45, 60]; // les temps maximum proposés, en minutes (0 = peu importe)
+
+// Les groupes qu'on peut exclure d'un seul bouton (mots = ce que l'appli cherche dans les plats)
+const GROUPES = [
+  { id: "legumes", mots: "légumes" },
+  { id: "viande", mots: "viande" },
+  { id: "poisson", mots: "poisson" },
+  { id: "mer", mots: "fruits de mer" },
+  { id: "laitages", mots: "laitages" },
+  { id: "oeufs", mots: "œufs" },
+];
 
 /* ------------------------------------------------------------------
    4. LES PETITS OUTILS
@@ -273,21 +321,30 @@ function motsDuPlat(plat) {
   return [...new Set(motsDe(textes.join(" ")))];
 }
 
-// On garde les plats dont tous les ingrédients existent, et on prépare leurs mots
+// On garde les plats dont tous les ingrédients existent et dont le temps est indiqué, et on prépare leurs mots
 const PLATS = LES_PLATS.filter((plat) => {
   const inconnus = plat.ingredients.filter((id) => !INGREDIENTS[id]);
   if (inconnus.length > 0) {
     console.warn("Plat ignoré (" + plat.nom + ") : ingrédient inconnu : " + inconnus.join(", "));
   }
-  return inconnus.length === 0;
-}).map((plat) => ({ ...plat, mots: motsDuPlat(plat) }));
+  if (!(plat.minutes > 0)) {
+    console.warn("Plat ignoré (" + plat.nom + ") : il manque son temps (minutes)");
+  }
+  return inconnus.length === 0 && plat.minutes > 0;
+}).map((plat) => ({ ...plat, emoji: plat.emoji || "🍴", mots: motsDuPlat(plat) }));
 
 // Tous les mots que l'appli connaît (pour repérer les fautes de frappe)
 const MOTS_CONNUS = new Set(PLATS.flatMap((plat) => plat.mots));
 
-// Tous les mots à éviter, pour toute la famille
+// Tous les mots à éviter, pour toute la famille (ce qui est tapé + les groupes cochés)
 function listeDesInterdits(membres) {
-  return membres.flatMap((m) => motsDe(m.detestes));
+  return membres.flatMap((m) => {
+    const groupes = (m.groupes || []).flatMap((id) => {
+      const groupe = GROUPES.find((g) => g.id === id);
+      return groupe ? motsDe(groupe.mots) : [];
+    });
+    return [...motsDe(m.detestes), ...groupes];
+  });
 }
 
 // Les mots écrits par la famille que l'appli ne connaît dans aucun plat
@@ -299,6 +356,18 @@ function motsInconnus(membres) {
 // Un plat est accepté si aucun mot interdit ne le décrit
 function platEstOk(plat, interdits) {
   return !interdits.some((interdit) => plat.mots.includes(interdit));
+}
+
+// Un plat est assez rapide si son temps ne dépasse pas le maximum choisi (0 = peu importe)
+function platEstAssezRapide(plat, tempsMax) {
+  return tempsMax === 0 || plat.minutes <= tempsMax;
+}
+
+// 45 devient "45 min", 60 devient "1 h", 90 devient "1 h 30"
+function dureeTexte(minutes) {
+  if (minutes < 60) return minutes + " " + TXT.min;
+  const reste = minutes % 60;
+  return Math.floor(minutes / 60) + " " + TXT.heure + (reste > 0 ? " " + (reste < 10 ? "0" : "") + reste : "");
 }
 
 // Mélange une liste au hasard
@@ -341,13 +410,32 @@ function prixTexte(centimes) {
   return FORMAT_EURO.format(centimes / 100); // 1250 devient "12,50 €"
 }
 
+// Le prix d'un plat = la somme des lignes de sa liste de courses (même arrondi, donc même total)
 function prixDuPlat(plat, personnes) {
-  const pour4 = plat.ingredients.reduce((somme, id) => somme + INGREDIENTS[id].prix, 0);
-  return prixEnCentimes(pour4, personnes);
+  return plat.ingredients.reduce((somme, id) => somme + prixEnCentimes(INGREDIENTS[id].prix, personnes), 0);
 }
 
 function libellePersonnes(n) {
   return n + " " + (n > 1 ? TXT.personnes : TXT.personne);
+}
+
+/* ----- Les quantités (grammes, kilos, centilitres, litres ou pièces) ----- */
+
+const FORMAT_NOMBRE = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
+
+// On arrondit vers le haut pour ne jamais en manquer : 425 g devient 450 g, 1,05 kg devient 1,1 kg
+function quantiteTexte(quantite, unite) {
+  if (unite === "g") {
+    const g = quantite < 1000 ? Math.max(50, Math.ceil(quantite / 50) * 50) : Math.ceil(quantite / 100) * 100;
+    return g < 1000 ? g + " " + TXT.gramme : FORMAT_NOMBRE.format(g / 1000) + " " + TXT.kilo;
+  }
+  if (unite === "cl") {
+    const cl = Math.max(5, Math.ceil(quantite / 5) * 5);
+    return cl < 100 ? cl + " " + TXT.centilitre : FORMAT_NOMBRE.format(cl / 100) + " " + TXT.litre;
+  }
+  const n = Math.max(1, Math.ceil(quantite)); // des pièces entières
+  const noms = TXT.unites[unite] || [unite, unite];
+  return n + " " + noms[n > 1 ? 1 : 0];
 }
 
 // La liste de courses : pour chaque ingrédient, pour combien de repas et combien ça coûte
@@ -364,6 +452,8 @@ function construireListe(menu, personnes) {
       nom: INGREDIENTS[id].nom,
       rayon: INGREDIENTS[id].rayon,
       repas: nombre[id],
+      quantite: (INGREDIENTS[id].qte * nombre[id] * personnes) / 4,
+      unite: INGREDIENTS[id].unite,
       centimes: prixEnCentimes(INGREDIENTS[id].prix * nombre[id], personnes),
     }))
     .sort((a, b) => a.nom.localeCompare(b.nom, "fr"));
@@ -372,16 +462,21 @@ function construireListe(menu, personnes) {
 }
 
 // Le texte envoyé quand on partage la liste (WhatsApp, SMS, e-mail...)
-function texteDeLaListe(liste, personnes) {
+// Pour le plat tiré au sort, on donne aussi le plat : le texte commence alors par son nom
+function texteDeLaListe(liste, personnes, plat) {
   const SAUT = String.fromCharCode(10); // retour à la ligne
-  const texte = ["🛒 " + TXT.partagerTitre + " (" + libellePersonnes(personnes) + ")", ""];
+  const texte = [];
+  if (plat) {
+    texte.push("🍽️ " + TXT.ceSoirTexte + " : " + plat.nom + " (🕒 " + dureeTexte(plat.minutes) + ")", "");
+  }
+  texte.push("🛒 " + TXT.partagerTitre + " (" + libellePersonnes(personnes) + ")", "");
   RAYONS.forEach((rayon) => {
     const lignes = liste.lignes.filter((l) => l.rayon === rayon);
     if (lignes.length === 0) return;
     texte.push(TXT.rayons[rayon]);
     lignes.forEach((l) => {
       const repas = l.repas > 1 ? " (" + TXT.repas.replace("{n}", l.repas) + ")" : "";
-      texte.push("- " + l.nom + repas + " : " + prixTexte(l.centimes));
+      texte.push("- " + l.nom + " : " + quantiteTexte(l.quantite, l.unite) + repas + " · " + prixTexte(l.centimes));
     });
     texte.push("");
   });
@@ -401,15 +496,130 @@ function lireFamille() {
       donnees.length > 0 &&
       donnees.every((m) => m && typeof m.prenom === "string" && typeof m.detestes === "string")
     ) {
-      return donnees;
+      return donnees.map((m) => ({
+        prenom: m.prenom,
+        detestes: m.detestes,
+        groupes: (Array.isArray(m.groupes) ? m.groupes : []).filter((id) => GROUPES.some((g) => g.id === id)),
+      }));
     }
   } catch (erreur) {
     // pas grave : on repart d'une famille vide
   }
-  return [{ prenom: "", detestes: "" }];
+  return [{ prenom: "", detestes: "", groupes: [] }];
+}
+
+// Le temps maximum choisi la dernière fois (0 = peu importe)
+const CLE_TEMPS = "menus-semaine-temps";
+
+function lireTemps() {
+  try {
+    const valeur = Number(localStorage.getItem(CLE_TEMPS));
+    if (TEMPS_CHOIX.includes(valeur)) return valeur;
+  } catch (erreur) {
+    // pas grave : on repart sans limite de temps
+  }
+  return 0;
 }
 
 // ===== L'APPLICATION =====
+
+// La liste des ingrédients d'un plat, avec les quantités pour le nombre de personnes
+function ListeIngredients({ plat, personnes, classe }) {
+  return (
+    <ul className={classe} aria-label={TXT.ingredients}>
+      {plat.ingredients.map((id) => (
+        <li key={id}>
+          <span className="ing-nom">{INGREDIENTS[id].nom}</span>{" "}
+          <span className="ing-qte">{quantiteTexte((INGREDIENTS[id].qte * personnes) / 4, INGREDIENTS[id].unite)}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+// Le bouton « Partager » et ses choix (WhatsApp, SMS, e-mail, copier).
+// texte = ce qui sera envoyé, titre = le titre du message, libelle = le texte du bouton
+function Partage({ texte, titre, libelle }) {
+  const [panneau, setPanneau] = useState(false); // le panneau de partage est-il ouvert ?
+  const [etatCopie, setEtatCopie] = useState(null); // null, "ok" ou "echec"
+  const debutPanneau = useRef(null);
+
+  // Quand on ouvre le panneau de partage, on le fait apparaître à l'écran
+  useEffect(() => {
+    if (panneau && debutPanneau.current) {
+      debutPanneau.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [panneau]);
+
+  // Quand le texte change, le message "copié" n'est plus vrai
+  useEffect(() => {
+    setEtatCopie(null);
+  }, [texte]);
+
+  // Sur téléphone, le bouton ouvre le partage habituel (WhatsApp, SMS...)
+  async function partager() {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: titre, text: texte });
+        return;
+      } catch (erreur) {
+        if (erreur && erreur.name === "AbortError") return; // la personne a simplement fermé la fenêtre
+      }
+    }
+    setPanneau(true); // sinon, on affiche nos propres boutons
+  }
+
+  async function copier() {
+    try {
+      await navigator.clipboard.writeText(texte);
+      setEtatCopie("ok");
+    } catch (erreur) {
+      setEtatCopie("echec");
+    }
+  }
+
+  const liens = {
+    whatsapp: "https://wa.me/?text=" + encodeURIComponent(texte),
+    sms: "sms:?&body=" + encodeURIComponent(texte),
+    email: "mailto:?subject=" + encodeURIComponent(titre) + "&body=" + encodeURIComponent(texte),
+  };
+
+  return (
+    <>
+      <button type="button" className="bouton bouton-principal" onClick={partager}>
+        {libelle}
+      </button>
+
+      {panneau && (
+        <div className="partage-panneau" ref={debutPanneau}>
+          <p>{TXT.partagerVia}</p>
+          <div className="partage-liens">
+            <a className="lien-partage" href={liens.whatsapp} target="_blank" rel="noopener noreferrer">
+              WhatsApp
+            </a>
+            <a className="lien-partage" href={liens.sms}>
+              SMS
+            </a>
+            <a className="lien-partage" href={liens.email}>
+              E-mail
+            </a>
+            <button type="button" className="lien-partage" onClick={copier}>
+              {TXT.copier}
+            </button>
+          </div>
+          {etatCopie === "ok" && <p className="info info-ok">{TXT.copie}</p>}
+          {etatCopie === "echec" && (
+            <>
+              <p className="info">{TXT.copieEchec}</p>
+              <textarea readOnly rows={8} value={texte} onFocus={(e) => e.target.select()} />
+            </>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
 export function App() {
   const [membres, setMembres] = useState(lireFamille);
   const [personnes, setPersonnes] = useState(membres.length); // pour le calcul des prix
@@ -418,22 +628,26 @@ export function App() {
   const [numero, setNumero] = useState(0); // compte les menus générés
   const [surprise, setSurprise] = useState(null); // le plat tiré au sort
   const [numeroSurprise, setNumeroSurprise] = useState(0);
-  const [panneau, setPanneau] = useState(false); // le panneau de partage est-il ouvert ?
-  const [etatCopie, setEtatCopie] = useState(null); // null, "ok" ou "echec"
   const [verifie, setVerifie] = useState(""); // ce qui a été tapé, une fois la frappe terminée
   const [ouverts, setOuverts] = useState({}); // les plats dont on voit les ingrédients (par jour)
+  const [tempsMax, setTempsMax] = useState(lireTemps); // le temps maximum choisi (0 = peu importe)
+  const [tempsDuMenu, setTempsDuMenu] = useState(0); // le temps maximum utilisé pour le menu affiché
   const debutMenu = useRef(null);
   const debutSurprise = useRef(null);
-  const debutPanneau = useRef(null);
   const minuteur = useRef(null);
 
   const interditsActuels = listeDesInterdits(membres);
   const inconnus = motsInconnus([{ detestes: verifie }]);
-  const platsLibres = menu
-    ? PLATS.filter((plat) => platEstOk(plat, interditsActuels) && !menu.some((m) => m.id === plat.id))
-    : [];
+  // Un plat convient s'il ne contient rien d'interdit et s'il est assez rapide
+  const convient = (plat) => platEstOk(plat, interditsActuels) && platEstAssezRapide(plat, tempsMax);
+  const platsLibres = menu ? PLATS.filter((plat) => convient(plat) && !menu.some((m) => m.id === plat.id)) : [];
   const liste = menu && menu.length > 0 ? construireListe(menu, personnes) : null;
   const texteListe = liste ? texteDeLaListe(liste, personnes) : "";
+  // Le texte envoyé quand on partage le plat tiré au sort (une fois validé)
+  const texteSurprise =
+    surprise && surprise.valide
+      ? texteDeLaListe(construireListe([surprise.plat], personnes), personnes, surprise.plat)
+      : "";
 
   // Après chaque nouveau menu, la page défile jusqu'à lui
   useEffect(() => {
@@ -448,13 +662,6 @@ export function App() {
       debutSurprise.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [numeroSurprise]);
-
-  // Quand on ouvre le panneau de partage, on le fait apparaître à l'écran
-  useEffect(() => {
-    if (panneau && debutPanneau.current) {
-      debutPanneau.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
-  }, [panneau]);
 
   // On arrête le tirage au sort si on quitte la page
   useEffect(() => {
@@ -478,17 +685,27 @@ export function App() {
     }
   }, [membres]);
 
-  // Quand la liste change, le message "copié" n'est plus vrai
+  // On garde aussi le temps maximum choisi
   useEffect(() => {
-    setEtatCopie(null);
-  }, [texteListe]);
+    try {
+      localStorage.setItem(CLE_TEMPS, String(tempsMax));
+    } catch (erreur) {
+      // pas grave
+    }
+  }, [tempsMax]);
 
   function majMembre(i, champ, valeur) {
     setMembres(membres.map((m, index) => (index === i ? { ...m, [champ]: valeur } : m)));
   }
 
+  // Toucher un bouton « En un clic » exclut (ou réintègre) tout un groupe d'aliments
+  function basculerGroupe(i, id) {
+    const groupes = membres[i].groupes || [];
+    majMembre(i, "groupes", groupes.includes(id) ? groupes.filter((g) => g !== id) : [...groupes, id]);
+  }
+
   function ajouterMembre() {
-    setMembres([...membres, { prenom: "", detestes: "" }]);
+    setMembres([...membres, { prenom: "", detestes: "", groupes: [] }]);
     setPersonnes(Math.min(20, personnes + 1));
   }
 
@@ -502,8 +719,8 @@ export function App() {
   }
 
   function genererMenu() {
-    const compatibles = PLATS.filter((plat) => platEstOk(plat, interditsActuels));
-    setMenu(composerMenu(compatibles));
+    setMenu(composerMenu(PLATS.filter(convient)));
+    setTempsDuMenu(tempsMax);
     setCoches({});
     setOuverts({});
     setNumero(numero + 1);
@@ -520,11 +737,11 @@ export function App() {
 
   // Le bouton "Surprends-moi" : un plat au hasard, avec un petit effet de tirage
   function surprendre() {
-    const candidats = PLATS.filter((plat) => platEstOk(plat, interditsActuels));
+    const candidats = PLATS.filter(convient);
     clearInterval(minuteur.current);
     setNumeroSurprise(numeroSurprise + 1);
     if (candidats.length === 0) {
-      setSurprise({ vide: true });
+      setSurprise({ vide: true, temps: tempsMax });
       return;
     }
     const precedent = surprise && surprise.plat ? surprise.plat.id : null;
@@ -552,33 +769,12 @@ export function App() {
     setCoches({ ...coches, [id]: !coches[id] });
   }
 
-  // Le bouton "Partager" : sur téléphone, il ouvre le partage habituel (WhatsApp, SMS...)
-  async function partager() {
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: TXT.partagerTitre, text: texteListe });
-        return;
-      } catch (erreur) {
-        if (erreur && erreur.name === "AbortError") return; // la personne a simplement fermé la fenêtre
-      }
-    }
-    setPanneau(true); // sinon, on affiche nos propres boutons
-  }
-
-  async function copier() {
-    try {
-      await navigator.clipboard.writeText(texteListe);
-      setEtatCopie("ok");
-    } catch (erreur) {
-      setEtatCopie("echec");
+  // Le bouton "Valider" : on garde ce plat, et on peut alors l'envoyer à la famille
+  function validerSurprise() {
+    if (surprise && surprise.plat && !surprise.enCours) {
+      setSurprise({ plat: surprise.plat, enCours: false, valide: true });
     }
   }
-
-  const liens = {
-    whatsapp: "https://wa.me/?text=" + encodeURIComponent(texteListe),
-    sms: "sms:?&body=" + encodeURIComponent(texteListe),
-    email: "mailto:?subject=" + encodeURIComponent(TXT.partagerTitre) + "&body=" + encodeURIComponent(texteListe),
-  };
 
   return (
     <>
@@ -613,6 +809,21 @@ export function App() {
                   onChange={(e) => majMembre(i, "detestes", e.target.value)}
                 />
               </label>
+              <div className="groupes">
+                <span className="groupes-titre">{TXT.groupesTitre}</span>
+                <div className="groupes-choix">
+                  {GROUPES.map((g) => (
+                    <label className="puce petite" key={g.id}>
+                      <input
+                        type="checkbox"
+                        checked={(m.groupes || []).includes(g.id)}
+                        onChange={() => basculerGroupe(i, g.id)}
+                      />
+                      <span>{TXT.groupes[g.id]}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
               {membres.length > 1 && (
                 <button type="button" className="retirer" aria-label={TXT.retirer} onClick={() => retirerMembre(i)}>
                   ×
@@ -626,6 +837,20 @@ export function App() {
           <button type="button" className="bouton bouton-secondaire" onClick={ajouterMembre}>
             {TXT.ajouter}
           </button>
+
+          <fieldset className="temps">
+            <legend>{TXT.tempsTitre}</legend>
+            <div className="temps-choix">
+              {TEMPS_CHOIX.map((minutes) => (
+                <label className="puce" key={minutes}>
+                  <input type="radio" name="temps" checked={tempsMax === minutes} onChange={() => setTempsMax(minutes)} />
+                  <span>{minutes === 0 ? TXT.tempsLibre : dureeTexte(minutes)}</span>
+                </label>
+              ))}
+            </div>
+            <p className="temps-aide">{TXT.tempsAide}</p>
+          </fieldset>
+
           <button type="button" className="bouton bouton-principal" onClick={genererMenu}>
             {menu ? TXT.regenerer : TXT.generer}
           </button>
@@ -639,21 +864,44 @@ export function App() {
           <section className="carte carte-surprise" ref={debutSurprise}>
             <h2>{TXT.ceSoir}</h2>
             {surprise.vide ? (
-              <p className="info">{TXT.aucunSurprise}</p>
+              <p className="info">
+                {surprise.temps > 0 ? TXT.aucunTemps.replace("{temps}", dureeTexte(surprise.temps)) : TXT.aucunSurprise}
+              </p>
             ) : (
               <>
-                <div className={surprise.enCours ? "surprise-nom tourne" : "surprise-nom"}>{surprise.plat.nom}</div>
+                <div className={surprise.enCours ? "surprise-tete en-cours" : "surprise-tete"}>
+                  <div className={"grande-vignette type-" + surprise.plat.type} aria-hidden="true">
+                    {surprise.plat.emoji}
+                  </div>
+                  <div className={surprise.enCours ? "surprise-nom tourne" : "surprise-nom"}>{surprise.plat.nom}</div>
+                </div>
                 {!surprise.enCours && (
                   <>
                     <p className="surprise-prix">
-                      {prixTexte(prixDuPlat(surprise.plat, personnes)) + " · " + libellePersonnes(personnes)}
+                      {prixTexte(prixDuPlat(surprise.plat, personnes)) +
+                        " · " +
+                        libellePersonnes(personnes) +
+                        " · 🕒 " +
+                        dureeTexte(surprise.plat.minutes)}
                     </p>
-                    <ul className="ingredients">
-                      {surprise.plat.ingredients.map((id) => (
-                        <li key={id}>{INGREDIENTS[id].nom}</li>
-                      ))}
-                    </ul>
+                    <ListeIngredients plat={surprise.plat} personnes={personnes} classe="ingredients" />
                   </>
+                )}
+                {surprise.valide ? (
+                  <>
+                    <p className="valide" role="status">
+                      {TXT.valide}
+                    </p>
+                    <Partage
+                      texte={texteSurprise}
+                      titre={TXT.ceSoirTexte + " : " + surprise.plat.nom}
+                      libelle={TXT.partagerPlat}
+                    />
+                  </>
+                ) : (
+                  <button type="button" className="bouton bouton-principal" disabled={surprise.enCours} onClick={validerSurprise}>
+                    {TXT.valider}
+                  </button>
                 )}
                 <button type="button" className="bouton bouton-secondaire" disabled={surprise.enCours} onClick={surprendre}>
                   {TXT.unAutre}
@@ -667,16 +915,35 @@ export function App() {
           <section className="carte" ref={debutMenu}>
             <h2>{TXT.menu}</h2>
             {menu.length > 0 && <p className="sous-titre">{TXT.prixPour.replace("{n}", libellePersonnes(personnes))}</p>}
-            {menu.length === 0 && <p className="info">{TXT.aucun}</p>}
-            {menu.length > 0 && menu.length < 7 && <p className="info">{TXT.pasAssez.replace("{n}", menu.length)}</p>}
+            {menu.length === 0 && (
+              <p className="info">
+                {tempsDuMenu > 0 ? TXT.aucunTemps.replace("{temps}", dureeTexte(tempsDuMenu)) : TXT.aucun}
+              </p>
+            )}
+            {menu.length > 0 && menu.length < 7 && (
+              <p className="info">
+                {(tempsDuMenu > 0 ? TXT.pasAssezTemps : TXT.pasAssez)
+                  .replace("{n}", menu.length)
+                  .replace("{temps}", dureeTexte(tempsDuMenu))}
+              </p>
+            )}
             {menu.map((plat, i) => (
               <div className="jour" key={plat.id}>
                 <div className="jour-ligne">
-                  <div className="pastille">{TXT.jours[i].slice(0, 3)}</div>
+                  <div className={"pastille type-" + plat.type}>
+                    <span className="pastille-image" aria-hidden="true">
+                      {plat.emoji}
+                    </span>
+                    <span className="pastille-jour">{TXT.jours[i].slice(0, 3)}</span>
+                  </div>
                   <button type="button" className="jour-texte" aria-expanded={ouverts[i] ? "true" : "false"} onClick={() => basculer(i)}>
                     <span className="jour-nom">{plat.nom}</span>
                     <span className="jour-sous">
                       <span className="jour-prix">{"≈ " + prixTexte(prixDuPlat(plat, personnes))}</span>
+                      <span className="jour-duree">
+                        <span aria-hidden="true">🕒 </span>
+                        {dureeTexte(plat.minutes)}
+                      </span>
                       <span className="jour-voir">
                         {TXT.ingredients}
                         <span aria-hidden="true">{ouverts[i] ? " ▴" : " ▾"}</span>
@@ -687,13 +954,7 @@ export function App() {
                     {TXT.changer}
                   </button>
                 </div>
-                {ouverts[i] && (
-                  <ul className="ingredients jour-ingredients" aria-label={TXT.ingredients}>
-                    {plat.ingredients.map((id) => (
-                      <li key={id}>{INGREDIENTS[id].nom}</li>
-                    ))}
-                  </ul>
-                )}
+                {ouverts[i] && <ListeIngredients plat={plat} personnes={personnes} classe="ingredients jour-ingredients" />}
               </div>
             ))}
           </section>
@@ -728,7 +989,10 @@ export function App() {
                       <input type="checkbox" checked={!!coches[l.id]} onChange={() => cocher(l.id)} />
                       <span className="course-nom">
                         {l.nom}{" "}
-                        {l.repas > 1 && <small>{TXT.repas.replace("{n}", l.repas)}</small>}
+                        <small>
+                          <strong>{quantiteTexte(l.quantite, l.unite)}</strong>
+                          {l.repas > 1 && " · " + TXT.repas.replace("{n}", l.repas)}
+                        </small>
                       </span>
                       <span className="course-prix">{prixTexte(l.centimes)}</span>
                     </label>
@@ -746,36 +1010,7 @@ export function App() {
             </p>
             <p className="aide">{TXT.prixIndicatif}</p>
 
-            <button type="button" className="bouton bouton-principal" onClick={partager}>
-              {TXT.partager}
-            </button>
-
-            {panneau && (
-              <div className="partage-panneau" ref={debutPanneau}>
-                <p>{TXT.partagerVia}</p>
-                <div className="partage-liens">
-                  <a className="lien-partage" href={liens.whatsapp} target="_blank" rel="noopener noreferrer">
-                    WhatsApp
-                  </a>
-                  <a className="lien-partage" href={liens.sms}>
-                    SMS
-                  </a>
-                  <a className="lien-partage" href={liens.email}>
-                    E-mail
-                  </a>
-                  <button type="button" className="lien-partage" onClick={copier}>
-                    {TXT.copier}
-                  </button>
-                </div>
-                {etatCopie === "ok" && <p className="info info-ok">{TXT.copie}</p>}
-                {etatCopie === "echec" && (
-                  <>
-                    <p className="info">{TXT.copieEchec}</p>
-                    <textarea readOnly rows={8} value={texteListe} onFocus={(e) => e.target.select()} />
-                  </>
-                )}
-              </div>
-            )}
+            <Partage texte={texteListe} titre={TXT.partagerTitre} libelle={TXT.partager} />
           </section>
         )}
       </main>

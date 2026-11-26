@@ -137,6 +137,108 @@ input[type="text"]:focus {
   color: var(--discret);
 }
 
+/* ----- Choix du temps maximum ----- */
+.temps {
+  min-width: 0;
+  margin: 6px 0 16px;
+  padding: 0;
+  border: 0;
+}
+
+.temps legend {
+  padding: 0;
+  margin-bottom: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--discret);
+}
+
+.temps-choix {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.puce {
+  position: relative;
+  display: block;
+  margin: 0;
+  cursor: pointer;
+}
+
+.puce input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+}
+
+.puce span {
+  display: block;
+  padding: 11px 16px;
+  border: 1px solid var(--trait);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--texte);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.puce input:checked + span {
+  border-color: var(--vert);
+  background: var(--vert);
+  color: #fff;
+}
+
+.puce input:focus-visible + span {
+  outline: 2px solid var(--vert);
+  outline-offset: 2px;
+}
+
+.temps-aide {
+  margin: 8px 2px 0;
+  font-size: 0.8rem;
+  color: var(--discret);
+}
+
+/* ----- Groupes à exclure en un clic (dans la fiche de chaque personne) ----- */
+.groupes {
+  margin: 0 0 10px;
+}
+
+.groupes-titre {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--discret);
+}
+
+.groupes-choix {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.puce.petite span {
+  padding: 6px 11px;
+  font-size: 0.82rem;
+}
+
+.groupes .puce input:checked + span {
+  border-color: #e3a595;
+  background: #fbe3dc;
+  color: #8c2f1a;
+}
+
+.groupes .puce input:checked + span::before {
+  content: "✕ ";
+}
+
 /* ----- Boutons ----- */
 .bouton {
   display: block;
@@ -190,8 +292,32 @@ input[type="text"]:focus {
   border: 1px solid #f6d9b0;
 }
 
+.surprise-tete {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.surprise-tete.en-cours {
+  margin-bottom: 14px;
+}
+
+.grande-vignette {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background: var(--vert-clair);
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
 .surprise-nom {
-  margin: 0 0 6px;
+  margin: 0;
   font-size: 1.4rem;
   font-weight: 800;
   line-height: 1.2;
@@ -201,7 +327,6 @@ input[type="text"]:focus {
 
 .surprise-nom.tourne {
   opacity: 0.45;
-  margin-bottom: 14px;
 }
 
 .surprise-prix {
@@ -227,6 +352,27 @@ input[type="text"]:focus {
   font-weight: 600;
 }
 
+.ing-qte {
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+/* ----- Plat validé ----- */
+.valide {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--vert-clair);
+  color: var(--vert-fonce);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.carte-surprise .bouton-principal,
+.carte-surprise .partage-panneau {
+  margin-bottom: 10px;
+}
+
 /* ----- Menu de la semaine ----- */
 .jour {
   border-top: 1px solid var(--trait);
@@ -239,22 +385,67 @@ input[type="text"]:focus {
 .jour-ligne {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   padding: 11px 0;
 }
 
 .pastille {
   flex: none;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
+  gap: 2px;
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
   background: var(--vert-clair);
   color: var(--vert-fonce);
-  font-size: 0.9rem;
+}
+
+.pastille-image {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.pastille-jour {
+  font-size: 0.7rem;
   font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* une couleur douce par type de plat (la vignette et la grande vignette) */
+.type-pates {
+  background: #fdf0cf;
+}
+
+.type-riz {
+  background: #fbe4d2;
+}
+
+.type-patates {
+  background: #efe5d3;
+}
+
+.type-viande {
+  background: #f9d9d6;
+}
+
+.type-poisson {
+  background: #d8ebf6;
+}
+
+.type-veggie {
+  background: #dcefdf;
+}
+
+.type-four {
+  background: #fde1bd;
+}
+
+.type-soupe {
+  background: #ecdff3;
 }
 
 .jour-texte {
@@ -288,7 +479,8 @@ input[type="text"]:focus {
   margin-top: 1px;
 }
 
-.jour-prix {
+.jour-prix,
+.jour-duree {
   font-size: 0.82rem;
   color: var(--discret);
 }
@@ -300,17 +492,17 @@ input[type="text"]:focus {
 }
 
 .jour-ingredients {
-  margin: 0 0 12px 60px;
+  margin: 0 0 12px 62px;
 }
 
 .changer {
   flex: none;
-  padding: 8px 10px;
+  padding: 8px 9px;
   border: 1px solid var(--trait);
   border-radius: 10px;
   background: #fff;
   color: var(--discret);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
 }
 
 .changer:disabled {
@@ -406,6 +598,11 @@ input[type="text"]:focus {
   color: var(--discret);
 }
 
+.course-nom small strong {
+  font-weight: 700;
+  color: var(--texte);
+}
+
 .course-prix {
   flex: none;
   font-weight: 600;
@@ -414,7 +611,8 @@ input[type="text"]:focus {
 }
 
 .fait .course-nom,
-.fait .course-prix {
+.fait .course-prix,
+.fait .course-nom small strong {
   text-decoration: line-through;
   color: var(--discret);
 }
