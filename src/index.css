@@ -502,6 +502,55 @@ input[type="text"]:focus {
   margin-bottom: 10px;
 }
 
+/* ----- La recette d'un plat ----- */
+.recette {
+  margin: 0 0 14px;
+}
+
+.jour .bouton-recette {
+  margin-left: 62px;
+}
+
+.bouton-recette {
+  display: inline-block;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--vert);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--vert-fonce);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.bouton-recette:focus-visible {
+  outline: 2px solid var(--vert);
+  outline-offset: 2px;
+}
+
+.recette-etapes {
+  margin: 12px 0 0;
+  padding-left: 24px;
+}
+
+.recette-etapes li {
+  margin: 0 0 10px;
+  padding-left: 4px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.recette-etapes li::marker {
+  color: var(--vert);
+  font-weight: 700;
+}
+
+.recette-aide {
+  margin: 4px 2px 0;
+  font-size: 0.8rem;
+  color: var(--discret);
+}
+
 /* ----- Menu de la semaine ----- */
 .jour {
   border-top: 1px solid var(--trait);

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./index.css";
+import { RECETTES } from "./recettes.js";
 
 /* ------------------------------------------------------------------
    1. TOUS LES TEXTES DE L'APPLI
@@ -77,6 +78,12 @@ const TXT = {
   menu: "Menu de la semaine",
   prixPour: "Prix estimés pour {n}",
   ingredients: "Ingrédients",
+  menuAstuce: "Touche un plat pour voir ses ingrédients et sa recette.",
+  voirRecette: "Voir la recette",
+  masquerRecette: "Masquer la recette",
+  recette: "Recette",
+  recetteTitre: "Recette (pour 4 personnes)",
+  recetteAide: "Recette pour 4 personnes : adapte les quantités si vous êtes plus ou moins nombreux. Du placard, pas dans la liste de courses : sel, poivre, huile, beurre, farine, sucre, bouillon, vinaigre, épices et herbes.",
   changer: "↻ Changer",
   pasAssez: "Seulement {n} plat(s) conviennent à toute la famille. On en ajoute bientôt !",
   pasAssezTemps: "Seulement {n} plat(s) conviennent à toute la famille en {temps} maximum. Essaie un temps plus long ou moins d'exclusions.",
@@ -155,6 +162,8 @@ const INGREDIENTS = {
   avocat: { nom: "Avocats", prix: 2.4, rayon: "legumes", qte: 2, unite: "piece", aussi: "legume" },
   betteraves: { nom: "Betteraves cuites", prix: 2.0, rayon: "legumes", qte: 500, unite: "g", aussi: "betterave legume" },
   persil: { nom: "Persil frais", prix: 1.0, rayon: "legumes", qte: 1, unite: "piece" },
+  basilic: { nom: "Basilic frais", prix: 1.5, rayon: "legumes", qte: 1, unite: "piece" },
+  ail: { nom: "Ail", prix: 0.8, rayon: "legumes", qte: 1, unite: "piece" },
 
   // Viandes et poissons
   viande_hachee: { nom: "Viande hachée", prix: 5.9, rayon: "viande", qte: 500, unite: "g", aussi: "viande boeuf" },
@@ -226,6 +235,8 @@ const INGREDIENTS = {
   falafels: { nom: "Falafels surgelés", prix: 3.4, rayon: "epicerie", qte: 16, unite: "piece", aussi: "chiche legumineuse" },
   poulet_pane: { nom: "Poulet pané (nuggets)", prix: 4.2, rayon: "epicerie", qte: 500, unite: "g", aussi: "viande volaille poulet" },
   croquettes_crevettes: { nom: "Croquettes de crevettes", prix: 5.0, rayon: "epicerie", qte: 8, unite: "piece", aussi: "fruits de mer" },
+  chapelure: { nom: "Chapelure", prix: 0.6, rayon: "epicerie", qte: 100, unite: "g" },
+  biere: { nom: "Bière brune", prix: 1.5, rayon: "epicerie", qte: 33, unite: "cl", aussi: "alcool" },
 
   // Pain
   pain: { nom: "Pain", prix: 2.0, rayon: "pain", qte: 1, unite: "piece" },
@@ -235,6 +246,7 @@ const INGREDIENTS = {
   pain_kebab: { nom: "Pains kebab", prix: 2.2, rayon: "pain", qte: 4, unite: "piece" },
   pains_hotdog: { nom: "Pains à hot-dog", prix: 1.8, rayon: "pain", qte: 8, unite: "piece" },
   baguette: { nom: "Baguettes", prix: 3.0, rayon: "pain", qte: 2, unite: "piece" },
+  bouchees: { nom: "Croûtes de vol-au-vent", prix: 2.8, rayon: "pain", qte: 4, unite: "piece" },
 };
 
 /* ------------------------------------------------------------------
@@ -249,6 +261,7 @@ const INGREDIENTS = {
    - emoji : le petit dessin affiché à côté du plat
    - ingredients : ils doivent exister dans la liste du dessus
    Les plats de type "fastfood" ne sont proposés que par le bouton « Fast-food ce soir ».
+   La recette du plat s'écrit dans le fichier recettes.js, avec le même id (sans recette, pas de bouton « Voir la recette »).
 ------------------------------------------------------------------- */
 const LES_PLATS = [
   // Pâtes
@@ -258,7 +271,7 @@ const LES_PLATS = [
   { id: "pates_thon", nom: "Pâtes au thon et à la tomate", type: "pates", cuisine: "italienne", minutes: 20, emoji: "🐟", ingredients: ["pates", "thon", "sauce_tomate", "oignons"] },
   { id: "gratin_pates", nom: "Gratin de pâtes au jambon", type: "pates", minutes: 40, emoji: "🧀", ingredients: ["pates", "jambon", "creme", "fromage_rape"] },
   { id: "pates_courgettes", nom: "Pâtes crémeuses aux courgettes", type: "pates", cuisine: "italienne", minutes: 25, emoji: "🥒", ingredients: ["pates", "courgettes", "creme", "parmesan"] },
-  { id: "wok_poulet", nom: "Wok de poulet et nouilles", type: "pates", cuisine: "chinoise", minutes: 25, emoji: "🍜", ingredients: ["poulet", "nouilles", "carottes", "poivrons"] },
+  { id: "wok_poulet", nom: "Wok de poulet et nouilles", type: "pates", cuisine: "chinoise", minutes: 25, emoji: "🍜", ingredients: ["poulet", "nouilles", "carottes", "poivrons", "sauce_soja"] },
   { id: "pad_thai", nom: "Pad thaï au poulet et aux cacahuètes", type: "pates", cuisine: "thai", minutes: 30, emoji: "🍜", ingredients: ["nouilles_riz", "poulet", "oeufs", "cacahuetes", "carottes", "sauce_soja"] },
   { id: "yakisoba", nom: "Yakisoba (nouilles sautées au poulet et au chou)", type: "pates", cuisine: "japonaise", minutes: 25, emoji: "🥡", ingredients: ["nouilles", "poulet", "chou", "carottes", "sauce_soja"] },
   { id: "nouilles_legumes", nom: "Nouilles sautées aux légumes et aux œufs", type: "pates", cuisine: "chinoise", minutes: 25, emoji: "🥕", ingredients: ["nouilles", "carottes", "chou", "oeufs", "sauce_soja"] },
@@ -290,13 +303,13 @@ const LES_PLATS = [
   { id: "stoemp", nom: "Stoemp aux carottes et saucisses", type: "patates", cuisine: "belge", minutes: 45, emoji: "🥕", ingredients: ["patates", "carottes", "poireaux", "saucisses"] },
   { id: "gratin_dauphinois", nom: "Gratin dauphinois et jambon", type: "patates", cuisine: "francaise", minutes: 75, emoji: "🧀", ingredients: ["patates", "creme", "fromage_rape", "jambon"] },
   { id: "endives_jambon", nom: "Endives au jambon gratinées", type: "patates", cuisine: "belge", minutes: 60, emoji: "🥓", ingredients: ["endives", "jambon", "fromage_rape", "patates", "lait"] },
-  { id: "escalope", nom: "Escalope panée, pommes de terre et salade", type: "patates", minutes: 35, emoji: "🥩", ingredients: ["escalopes", "patates", "salade", "citron"] },
+  { id: "escalope", nom: "Escalope panée, pommes de terre et salade", type: "patates", minutes: 35, emoji: "🥩", ingredients: ["escalopes", "oeufs", "chapelure", "patates", "salade", "citron"] },
   { id: "placki", nom: "Galettes de pommes de terre (placki)", type: "patates", cuisine: "polonaise", minutes: 35, emoji: "🥞", ingredients: ["patates", "oignons", "oeufs", "creme"] },
   { id: "pdt_lardons", nom: "Pommes de terre sautées, lardons et œufs", type: "patates", minutes: 35, emoji: "🍳", ingredients: ["patates", "lardons", "oeufs", "oignons"] },
   { id: "boulets", nom: "Boulets sauce tomate et frites", type: "patates", cuisine: "belge", minutes: 45, emoji: "🍖", ingredients: ["viande_hachee", "sauce_tomate", "oignons", "frites"] },
   { id: "burger", nom: "Burgers maison et frites", type: "patates", minutes: 35, emoji: "🍔", ingredients: ["pains_burger", "viande_hachee", "fromage_rape", "salade", "tomates", "frites"] },
   { id: "pierogi", nom: "Pierogi ruskis à la crème", type: "patates", cuisine: "polonaise", minutes: 20, emoji: "🥟", ingredients: ["pierogi", "oignons", "creme"] },
-  { id: "schabowy", nom: "Kotlet schabowy (escalope panée), pommes de terre et concombre", type: "patates", cuisine: "polonaise", minutes: 40, emoji: "🥩", ingredients: ["escalopes", "patates", "concombre", "creme"] },
+  { id: "schabowy", nom: "Kotlet schabowy (escalope panée), pommes de terre et concombre", type: "patates", cuisine: "polonaise", minutes: 40, emoji: "🥩", ingredients: ["escalopes", "oeufs", "chapelure", "patates", "concombre", "creme"] },
   { id: "salade_liegeoise", nom: "Salade liégeoise (haricots verts, pommes de terre, lardons)", type: "patates", cuisine: "belge", minutes: 35, emoji: "🥗", ingredients: ["haricots_verts", "patates", "lardons", "oignons"] },
   { id: "stoemp_veggie", nom: "Stoemp de carottes et poireaux, œufs au plat", type: "patates", cuisine: "belge", minutes: 45, emoji: "🥕", ingredients: ["patates", "carottes", "poireaux", "oeufs"] },
   { id: "patatas_bravas", nom: "Patatas bravas et chorizo grillé, pain", type: "patates", cuisine: "espagnole", minutes: 35, emoji: "🥔", ingredients: ["patates", "chorizo", "sauce_tomate", "pain"] },
@@ -306,12 +319,12 @@ const LES_PLATS = [
   { id: "wraps", nom: "Wraps au poulet et crudités", type: "viande", minutes: 20, emoji: "🌯", ingredients: ["tortillas", "poulet", "salade", "tomates"] },
   { id: "golabki", nom: "Choux farcis (gołąbki) sauce tomate", type: "viande", cuisine: "polonaise", minutes: 90, emoji: "🍲", ingredients: ["chou", "viande_hachee", "riz", "sauce_tomate"] },
   { id: "waterzooi", nom: "Waterzooi de poulet", type: "viande", cuisine: "belge", minutes: 60, emoji: "🥣", ingredients: ["poulet", "poireaux", "carottes", "patates", "creme"] },
-  { id: "carbonade", nom: "Carbonade flamande et frites", type: "viande", cuisine: "belge", minutes: 150, emoji: "🍖", ingredients: ["boeuf", "oignons", "frites"] },
+  { id: "carbonade", nom: "Carbonade flamande et frites", type: "viande", cuisine: "belge", minutes: 150, emoji: "🍖", ingredients: ["boeuf", "oignons", "biere", "frites"] },
   { id: "bigos", nom: "Bigos (choucroute aux saucisses)", type: "viande", cuisine: "polonaise", minutes: 60, emoji: "🥘", ingredients: ["choucroute", "saucisses", "lardons", "oignons"] },
-  { id: "nuggets", nom: "Poulet pané et frites", type: "viande", minutes: 35, emoji: "🍗", ingredients: ["poulet", "frites", "salade"] },
-  { id: "poulet_basilic", nom: "Poulet sauté au basilic thaï et riz", type: "viande", cuisine: "thai", minutes: 25, emoji: "🌿", ingredients: ["poulet", "haricots_verts", "poivrons", "riz", "sauce_soja"] },
+  { id: "nuggets", nom: "Poulet pané et frites", type: "viande", minutes: 35, emoji: "🍗", ingredients: ["poulet", "oeufs", "chapelure", "frites", "salade"] },
+  { id: "poulet_basilic", nom: "Poulet sauté au basilic thaï et riz", type: "viande", cuisine: "thai", minutes: 25, emoji: "🌿", ingredients: ["poulet", "haricots_verts", "poivrons", "riz", "sauce_soja", "basilic"] },
   { id: "fajitas", nom: "Fajitas de poulet et poivrons", type: "viande", cuisine: "mexicaine", minutes: 30, emoji: "🥙", ingredients: ["tortillas", "poulet", "poivrons", "oignons", "creme"] },
-  { id: "vol_au_vent", nom: "Vol-au-vent de poulet aux champignons et frites", type: "viande", cuisine: "belge", minutes: 50, emoji: "🍗", ingredients: ["poulet", "champignons", "creme", "frites"] },
+  { id: "vol_au_vent", nom: "Vol-au-vent de poulet aux champignons et frites", type: "viande", cuisine: "belge", minutes: 50, emoji: "🍗", ingredients: ["poulet", "champignons", "creme", "bouchees", "frites"] },
   { id: "tajine_poulet", nom: "Tajine de poulet au citron et aux olives, semoule", type: "viande", cuisine: "marocaine", minutes: 55, emoji: "🍲", ingredients: ["poulet", "oignons", "citron", "olives", "semoule"] },
   { id: "kefta", nom: "Kefta (boulettes) à la sauce tomate et semoule", type: "viande", cuisine: "marocaine", minutes: 40, emoji: "🍖", ingredients: ["viande_hachee", "sauce_tomate", "oignons", "semoule"] },
   { id: "brochettes_poulet", nom: "Brochettes de poulet, poivrons et semoule", type: "viande", cuisine: "marocaine", minutes: 35, emoji: "🍢", ingredients: ["poulet", "poivrons", "oignons", "semoule"] },
@@ -332,7 +345,7 @@ const LES_PLATS = [
   { id: "crevettes_riz", nom: "Crevettes sautées et riz", type: "poisson", minutes: 25, emoji: "🦐", ingredients: ["crevettes", "riz", "petits_pois", "oignons"] },
   { id: "croquettes_crevettes", nom: "Croquettes de crevettes, frites et citron", type: "poisson", cuisine: "belge", minutes: 25, emoji: "🍤", ingredients: ["croquettes_crevettes", "frites", "salade", "citron"] },
   { id: "poke", nom: "Bol de riz au saumon et à l'avocat (poke bowl)", type: "poisson", cuisine: "japonaise", minutes: 25, emoji: "🍣", ingredients: ["riz", "saumon", "avocat", "concombre", "sauce_soja"] },
-  { id: "gambas", nom: "Crevettes à l'ail et au citron, pain grillé", type: "poisson", cuisine: "espagnole", minutes: 20, emoji: "🦐", ingredients: ["crevettes", "pain", "citron", "salade"] },
+  { id: "gambas", nom: "Crevettes à l'ail et au citron, pain grillé", type: "poisson", cuisine: "espagnole", minutes: 20, emoji: "🦐", ingredients: ["crevettes", "ail", "pain", "citron", "salade"] },
 
   // Sans viande ni poisson
   { id: "omelette", nom: "Omelette au fromage et salade", type: "veggie", cuisine: "francaise", minutes: 15, emoji: "🍳", ingredients: ["oeufs", "fromage_rape", "salade", "tomates"] },
@@ -717,8 +730,9 @@ function construireListe(menu, personnes) {
 }
 
 // Le texte envoyé quand on partage la liste (WhatsApp, SMS, e-mail...)
-// Pour le plat tiré au sort, on donne aussi le plat : le texte commence alors par son nom
-function texteDeLaListe(liste, personnes, plat) {
+// Pour le plat tiré au sort, on donne aussi le plat : le texte commence alors par son nom,
+// et il se termine par sa recette (etapes = la liste des étapes de la recette)
+function texteDeLaListe(liste, personnes, plat, etapes) {
   const SAUT = String.fromCharCode(10); // retour à la ligne
   const texte = [];
   if (plat) {
@@ -737,6 +751,10 @@ function texteDeLaListe(liste, personnes, plat) {
     texte.push("");
   });
   texte.push(TXT.total + " : " + prixTexte(liste.total));
+  if (plat && etapes && etapes.length > 0) {
+    texte.push("", "📖 " + TXT.recetteTitre + " :");
+    etapes.forEach((etape, k) => texte.push(k + 1 + ". " + etape));
+  }
   return texte.join(SAUT);
 }
 
@@ -791,6 +809,31 @@ function ListeIngredients({ plat, personnes, classe }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+// La recette d'un plat : un bouton qui l'affiche ou la cache
+function Recette({ plat }) {
+  const [ouverte, setOuverte] = useState(false);
+  const etapes = RECETTES[plat.id];
+  if (!etapes) return null; // pas de recette écrite pour ce plat : pas de bouton
+  return (
+    <div className="recette">
+      <button type="button" className="bouton-recette" aria-expanded={ouverte ? "true" : "false"} onClick={() => setOuverte(!ouverte)}>
+        <span aria-hidden="true">📖 </span>
+        {ouverte ? TXT.masquerRecette : TXT.voirRecette}
+      </button>
+      {ouverte && (
+        <>
+          <ol className="recette-etapes" aria-label={TXT.recette}>
+            {etapes.map((etape, k) => (
+              <li key={k}>{etape}</li>
+            ))}
+          </ol>
+          <p className="recette-aide">{TXT.recetteAide}</p>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -917,7 +960,7 @@ export function App() {
   // Le texte envoyé quand on partage le plat tiré au sort (une fois validé)
   const texteSurprise =
     surprise && surprise.valide
-      ? texteDeLaListe(construireListe([surprise.plat], personnes), personnes, surprise.plat)
+      ? texteDeLaListe(construireListe([surprise.plat], personnes), personnes, surprise.plat, RECETTES[surprise.plat.id])
       : "";
 
   // Après chaque nouveau menu, la page défile jusqu'à lui
@@ -1221,6 +1264,7 @@ export function App() {
                     <Etiquettes plat={surprise.plat} membres={membres} />
                     <ListeIngredients plat={surprise.plat} personnes={personnes} classe="ingredients" />
                     {surprise.fastfood && <p className="aide aide-fastfood">{TXT.fastfoodAide}</p>}
+                    <Recette key={surprise.plat.id} plat={surprise.plat} />
                   </>
                 )}
                 {surprise.valide ? (
@@ -1255,7 +1299,13 @@ export function App() {
         {menu && (
           <section className="carte" ref={debutMenu}>
             <h2>{TXT.menu}</h2>
-            {menu.length > 0 && <p className="sous-titre">{TXT.prixPour.replace("{n}", libellePersonnes(personnes))}</p>}
+            {menu.length > 0 && (
+              <p className="sous-titre">
+                {TXT.prixPour.replace("{n}", libellePersonnes(personnes))}
+                <br />
+                {TXT.menuAstuce}
+              </p>
+            )}
             {menu.length === 0 && (
               <p className="info">
                 {tempsDuMenu > 0 ? TXT.aucunTemps.replace("{temps}", dureeTexte(tempsDuMenu)) : TXT.aucun}
@@ -1299,7 +1349,12 @@ export function App() {
                     {TXT.changer}
                   </button>
                 </div>
-                {ouverts[i] && <ListeIngredients plat={plat} personnes={personnes} classe="ingredients jour-ingredients" />}
+                {ouverts[i] && (
+                  <>
+                    <ListeIngredients plat={plat} personnes={personnes} classe="ingredients jour-ingredients" />
+                    <Recette key={plat.id} plat={plat} />
+                  </>
+                )}
               </div>
             ))}
           </section>
